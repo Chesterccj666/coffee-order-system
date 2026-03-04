@@ -3,5 +3,25 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.lihao.CoffeeOrderSystem.mapper.OrderItemMapper">
-    <!-- 这里以后可以放复杂的SQL语句 -->
+
+    <!-- 批量插入订单详情 -->
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO order_item(
+        order_id, coffee_id, coffee_name, coffee_image,
+        price, quantity, total_price, create_time, sweet, temperature
+        ) VALUES
+#         foreach：循环标签
+#         collection="list"：要循环的集合，这里就是方法参数里的List
+#         item="item"：循环中的每个元素起名为 item
+#         separator=","：每循环一次，用逗号分隔
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.orderId}, #{item.coffeeId}, #{item.coffeeName}, #{item.coffeeImage},
+            #{item.price}, #{item.quantity}, #{item.totalPrice}, #{item.createTime},
+            #{item.sweet}, #{item.temperature}
+            )
+        </foreach>
+
+    </insert>
+
 </mapper>
