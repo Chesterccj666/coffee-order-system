@@ -18,4 +18,7 @@ public class Order {
     private String remark;            // 顾客备注
     private String takeCode;          // 取餐码，固定4位，高位不足时补0
     private LocalDateTime orderTime;  // 下单时间、默认当前系统时间
+    
+    // 用于接收购物车ID列表的字段（不在数据库中）
+    private java.util.List<Integer> cartIds;
 }

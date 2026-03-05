@@ -1,16 +1,20 @@
-<script setup>
-// 正式代码从这里开始
-</script>
-
-
-
 <template>
   <div id="app">
-    <!-- 路由占位符，后面会加路由 -->
     <router-view />
   </div>
 </template>
 
+<script>
+export default {
+  name: 'App'
+}
+</script>
 
-
-<style></style>
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+</style>

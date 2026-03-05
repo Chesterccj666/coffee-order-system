@@ -46,4 +46,10 @@ public interface CartMapper {
      */
     @Delete("DELETE FROM cart WHERE user_id = #{userId}")
     int deleteByUserId(Integer userId);
+    
+    /**
+     * 【根据ID查询】根据id查询购物车项
+     */
+    @Select("SELECT * FROM cart WHERE id = #{id}")
+    Cart selectById(Integer id);
 }
