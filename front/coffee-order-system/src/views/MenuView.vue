@@ -34,7 +34,7 @@
                 <h3>{{ coffee.name }}</h3>
                 <p class="description">{{ coffee.description }}</p>
                 <p class="price">¥{{ coffee.price }}</p>
-                <p class="stock">库存: {{ coffee.stock }}</p>
+                <p class="stock">剩余数量: {{ coffee.stock }}</p>
                 <div class="customization-options">
                   <div class="option-group">
                     <span>甜度:</span>
@@ -283,17 +283,26 @@ export default {
 }
 
 .coffee-card {
-  margin-bottom: 20px;
+  margin-bottom: 10px; /* 减小卡片自身的下边距 */
+  margin-left: 8px;
+  margin-right: 8px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-radius: 12px; /* 增加圆角 */
+  overflow: hidden; /* 确保内容也遵循圆角 */
+}
+
+/* 添加行间距控制 */
+.el-row :deep(.el-col) {
+  margin-bottom: 25px; /* 控制每行之间的间距 */
 }
 
 .coffee-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  border-radius: 5px 5px 0 0;
+  border-radius: 12px 12px 0 0; /* 与容器圆角匹配 */
 }
 
 .coffee-info {
