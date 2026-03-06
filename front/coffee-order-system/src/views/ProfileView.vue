@@ -83,7 +83,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { getUserInfo, updateUserInfo } from '@/api/user'
 import { Plus } from '@element-plus/icons-vue'
 
 export default {
@@ -141,9 +141,9 @@ export default {
 
     const loadUserProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/user/${userInfo.value.id}`)
-        if (response.data.code === 200) {
-          const userData = response.data.data
+        const response = await getUserInfo(userInfo.value.id)
+        if (response.code === 200) {
+          const userData = response.data
           form.value = {
             id: userData.id,
             username: userData.username,
@@ -155,7 +155,7 @@ export default {
           // 同步更新本地存储的用户信息
           localStorage.setItem('userInfo', JSON.stringify(userData))
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('加载用户信息失败:', error)
@@ -193,13 +193,9 @@ export default {
           formData.append('headImage', form.value.avatarFile)
         }
 
-        const response = await axios.put('http://localhost:8080/api/user/update', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        const response = await updateUserInfo(formData)
         
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           ElMessage.success('更新成功')
           // 更新本地存储的用户信息
           const updatedUserInfo = {
@@ -207,7 +203,7 @@ export default {
             username: form.value.username,
             phone: form.value.phone,
             gender: form.value.gender,
-            headImage: response.data.data.headImage, // 使用服务器返回的实际路径
+            headImage: response.data.headImage, // 使用服务器返回的实际路径
             role: form.value.role
           }
           localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo))
@@ -215,7 +211,7 @@ export default {
           // 重新加载用户信息以更新头像
           loadUserProfile()
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('更新失败:', error)

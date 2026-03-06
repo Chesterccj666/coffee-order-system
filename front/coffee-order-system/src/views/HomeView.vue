@@ -125,7 +125,8 @@
 <script>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { getRecommendedCoffee } from '@/api/coffee'
+import { getOrdersByStatus, getAllOrdersByStatus } from '@/api/order'
 
 export default {
   name: 'HomeView',
@@ -148,15 +149,15 @@ export default {
 
     const loadRecommendedCoffees = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/coffee/recommended')
-        if (response.data.code === 200) {
-          recommendedCoffees.value = response.data.data
+        const response = await getRecommendedCoffee()
+        if (response.code === 200) {
+          recommendedCoffees.value = response.data
           // 初始化当前显示的咖啡信息
           if (limitedRecommendedCoffees.value.length > 0) {
             currentCoffee.value = limitedRecommendedCoffees.value[0]
           }
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('加载推荐咖啡失败:', error)
@@ -176,19 +177,19 @@ export default {
       if (isLoggedIn.value && userInfo.value.role === 2) { // 店员角色
         try {
           // 加载订单数量统计
-          const pendingResponse = await axios.get('http://localhost:8080/api/order/byStatus/1')
-          if (pendingResponse.data.code === 200) {
-            pendingOrdersCount.value = pendingResponse.data.data ? pendingResponse.data.data.length : 0
+          const pendingResponse = await getOrdersByStatus(1)
+          if (pendingResponse.code === 200) {
+            pendingOrdersCount.value = pendingResponse.data ? pendingResponse.data.length : 0
           }
 
-          const processingResponse = await axios.get('http://localhost:8080/api/order/byStatus/2')
-          if (processingResponse.data.code === 200) {
-            processingOrdersCount.value = processingResponse.data.data ? processingResponse.data.data.length : 0
+          const processingResponse = await getOrdersByStatus(2)
+          if (processingResponse.code === 200) {
+            processingOrdersCount.value = processingResponse.data ? processingResponse.data.length : 0
           }
 
-          const completedResponse = await axios.get('http://localhost:8080/api/order/byStatus/3')
-          if (completedResponse.data.code === 200) {
-            const completedOrders = completedResponse.data.data || []
+          const completedResponse = await getOrdersByStatus(3)
+          if (completedResponse.code === 200) {
+            const completedOrders = completedResponse.data || []
             completedOrdersCount.value = completedOrders.length
             
             // 计算今日销售额（已完成订单）
@@ -205,9 +206,9 @@ export default {
           }
           
           // 获取所有订单用于计算历史总额
-          const allOrdersResponse = await axios.get('http://localhost:8080/api/order/allOrders/0')
-          if (allOrdersResponse.data.code === 200) {
-            const allOrders = allOrdersResponse.data.data || []
+          const allOrdersResponse = await getAllOrdersByStatus(0)
+          if (allOrdersResponse.code === 200) {
+            const allOrders = allOrdersResponse.data || []
             // 计算历史总销售额（所有已完成订单）
             totalSales.value = allOrders
               .filter(order => order.status === 3) // 仅已完成订单

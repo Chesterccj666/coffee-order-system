@@ -105,7 +105,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import { getAllOrdersByStatus, getOrdersByStatus, updateOrderStatus, getOrderDetail } from '@/api/order'
 import { useRouter } from 'vue-router'
 
 export default {
@@ -147,21 +147,20 @@ export default {
         let ordersData = []
         if (filterStatus.value) {
           // 如果有状态过滤，只获取特定状态的订单
-          const url = `http://localhost:8080/api/order/byStatus/${filterStatus.value}`
-          const response = await axios.get(url)
-          if (response.data.code === 200) {
-            ordersData = response.data.data || []
+          const response = await getOrdersByStatus(filterStatus.value)
+          if (response.code === 200) {
+            ordersData = response.data || []
           } else {
-            ElMessage.error(response.data.message)
+            ElMessage.error(response.message)
             return
           }
         } else {
           // 如果没有状态过滤，获取所有状态的订单
-          const response = await axios.get('http://localhost:8080/api/order/allOrders/0')
-          if (response.data.code === 200) {
-            ordersData = response.data.data || []
+          const response = await getAllOrdersByStatus(0)
+          if (response.code === 200) {
+            ordersData = response.data || []
           } else {
-            ElMessage.error(response.data.message)
+            ElMessage.error(response.message)
             return
           }
         }
@@ -171,9 +170,9 @@ export default {
         // 获取每个订单的详细信息
         for (let i = 0; i < orders.value.length; i++) {
           try {
-            const orderDetailResponse = await axios.get(`http://localhost:8080/api/order/detail/${orders.value[i].id}`)
-            if (orderDetailResponse.data.code === 200) {
-              orders.value[i].items = orderDetailResponse.data.data.items || []
+            const orderDetailResponse = await getOrderDetail(orders.value[i].id)
+            if (orderDetailResponse.code === 200) {
+              orders.value[i].items = orderDetailResponse.data.items || []
             }
           } catch (err) {
             console.warn(`获取订单 ${orders.value[i].id} 详情失败:`, err)
@@ -194,18 +193,13 @@ export default {
           type: 'warning'
         })
 
-        const response = await axios.put('http://localhost:8080/api/order/updateStatus', null, {
-          params: {
-            id: orderId,
-            status: 2 // 已接单/制作中
-          }
-        })
+        const response = await updateOrderStatus(orderId, 2) // 已接单/制作中
 
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           ElMessage.success('接单成功')
           loadOrders() // 刷新订单列表
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         if (error !== 'cancel') {
@@ -223,18 +217,13 @@ export default {
           type: 'warning'
         })
 
-        const response = await axios.put('http://localhost:8080/api/order/updateStatus', null, {
-          params: {
-            id: orderId,
-            status: 3 // 已完成/可取餐
-          }
-        })
+        const response = await updateOrderStatus(orderId, 3) // 已完成/可取餐
 
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           ElMessage.success('出餐成功')
           loadOrders() // 刷新订单列表
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         if (error !== 'cancel') {

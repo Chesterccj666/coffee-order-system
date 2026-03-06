@@ -103,7 +103,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import { getAllCoffee, getCoffeeByCategory } from '@/api/coffee'
+import { addToCart as addCart } from '@/api/cart'
 
 export default {
   name: 'MenuView',
@@ -133,9 +134,9 @@ export default {
 
     const loadCoffees = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/coffee/list')
-        if (response.data.code === 200) {
-          coffees.value = response.data.data
+        const response = await getAllCoffee()
+        if (response.code === 200) {
+          coffees.value = response.data
           // 初始化选项
           coffees.value.forEach(coffee => {
             if (!selectedOptions.value[coffee.id]) {
@@ -147,7 +148,7 @@ export default {
             }
           })
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('加载咖啡列表失败:', error)
@@ -159,13 +160,13 @@ export default {
       try {
         let response
         if (category === 'all') {
-          response = await axios.get('http://localhost:8080/api/coffee/list')
+          response = await getAllCoffee()
         } else {
-          response = await axios.get(`http://localhost:8080/api/coffee/category/${category}`)
+          response = await getCoffeeByCategory(category)
         }
         
-        if (response.data.code === 200) {
-          coffees.value = response.data.data
+        if (response.code === 200) {
+          coffees.value = response.data
           // 初始化选项
           coffees.value.forEach(coffee => {
             if (!selectedOptions.value[coffee.id]) {
@@ -177,7 +178,7 @@ export default {
             }
           })
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('加载咖啡列表失败:', error)
@@ -200,7 +201,7 @@ export default {
           type: 'warning'
         }).then(() => {
           // 跳转到登录页面
-          $router.push('/login')
+          router.push('/login')
         })
         return
       }
@@ -217,13 +218,13 @@ export default {
           temperature: selectedOptions.value[coffee.id].temperature
         }
 
-        const response = await axios.post('http://localhost:8080/api/cart/add', cartItem)
+        const response = await addCart(cartItem)
         
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           addToCartCoffeeName.value = coffee.name
           showAddCartSuccess.value = true
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('添加到购物车失败:', error)

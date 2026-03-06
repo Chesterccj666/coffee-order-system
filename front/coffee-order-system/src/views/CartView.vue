@@ -112,7 +112,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { getUserCart, updateCartItemQuantity, deleteCartItem } from '@/api/cart'
+import { createOrder } from '@/api/order'
 
 export default {
   name: 'CartView',
@@ -145,11 +146,11 @@ export default {
 
     const loadCartItems = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/cart/list/${userInfo.value.id}`)
-        if (response.data.code === 200) {
-          cartItems.value = response.data.data
+        const response = await getUserCart(userInfo.value.id)
+        if (response.code === 200) {
+          cartItems.value = response.data
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('加载购物车失败:', error)
@@ -159,16 +160,11 @@ export default {
 
     const updateQuantity = async (id, quantity) => {
       try {
-        const response = await axios.put('http://localhost:8080/api/cart/updateQuantity', null, {
-          params: {
-            id,
-            quantity
-          }
-        })
-        if (response.data.code === 200) {
+        const response = await updateCartItemQuantity(id, quantity)
+        if (response.code === 200) {
           ElMessage.success('数量更新成功')
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
           // 重新加载购物车以恢复原值
           loadCartItems()
         }
@@ -182,12 +178,12 @@ export default {
 
     const removeFromCart = async (id) => {
       try {
-        const response = await axios.delete(`http://localhost:8080/api/cart/delete/${id}`)
-        if (response.data.code === 200) {
+        const response = await deleteCartItem(id)
+        if (response.code === 200) {
           ElMessage.success('删除成功')
           loadCartItems() // 重新加载购物车
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('删除失败:', error)
@@ -240,16 +236,16 @@ export default {
           cartIds: cartIds
         }
 
-        const response = await axios.post('http://localhost:8080/api/order/create', orderData)
+        const response = await createOrder(orderData)
         
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           ElMessage.success('订单创建成功')
           showCheckoutDialog.value = false
           orderRemark.value = ''
           loadCartItems() // 重新加载购物车
           router.push('/orders') // 跳转到订单页面
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('创建订单失败:', error)

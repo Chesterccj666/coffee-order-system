@@ -78,7 +78,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage, ElUpload } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { register } from '@/api/user'
 import { Plus } from '@element-plus/icons-vue'
 
 export default {
@@ -165,17 +165,13 @@ export default {
           formData.append('headImage', selectedFile.value)
         }
 
-        const response = await axios.post('http://localhost:8080/api/user/register', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        const response = await register(formData)
         
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           ElMessage.success('注册成功，请登录')
           router.push('/login')
         } else {
-          ElMessage.error(response.data.message || '注册失败')
+          ElMessage.error(response.message || '注册失败')
         }
       } catch (error) {
         console.error('注册失败:', error)

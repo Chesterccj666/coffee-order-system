@@ -41,7 +41,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { login } from '@/api/user'
 
 export default {
   name: 'LoginView',
@@ -73,17 +73,17 @@ export default {
 
         loading.value = true
 
-        const response = await axios.post('http://localhost:8080/api/user/login', loginForm)
+        const response = await login(loginForm)
         
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           // 登录成功，保存用户信息到本地存储
-          localStorage.setItem('userInfo', JSON.stringify(response.data.data))
+          localStorage.setItem('userInfo', JSON.stringify(response.data))
           ElMessage.success('登录成功')
           
           // 跳转到首页或其他页面
           router.push('/')
         } else {
-          ElMessage.error(response.data.message || '登录失败')
+          ElMessage.error(response.message || '登录失败')
         }
       } catch (error) {
         console.error('登录失败:', error)
