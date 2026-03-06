@@ -1,6 +1,6 @@
-package com.lihao.CoffeeOrderSystem.Service.impl;
+package com.lihao.CoffeeOrderSystem.service.impl;
 
-import com.lihao.CoffeeOrderSystem.Service.CartService;
+import com.lihao.CoffeeOrderSystem.service.CartService;
 import com.lihao.CoffeeOrderSystem.entity.Cart;
 import com.lihao.CoffeeOrderSystem.mapper.CartMapper;
 import org.springframework.beans.factory.annotation.Autowired;

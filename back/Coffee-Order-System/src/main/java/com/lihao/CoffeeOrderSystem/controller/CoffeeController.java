@@ -1,6 +1,6 @@
 package com.lihao.CoffeeOrderSystem.controller;
 
-import com.lihao.CoffeeOrderSystem.Service.CoffeeService;
+import com.lihao.CoffeeOrderSystem.service.CoffeeService;
 import com.lihao.CoffeeOrderSystem.entity.Coffee;
 import com.lihao.CoffeeOrderSystem.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;

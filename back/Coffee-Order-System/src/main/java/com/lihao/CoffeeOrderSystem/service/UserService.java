@@ -1,4 +1,4 @@
-package com.lihao.CoffeeOrderSystem.Service;
+package com.lihao.CoffeeOrderSystem.service;
 
 import com.lihao.CoffeeOrderSystem.entity.User;
 

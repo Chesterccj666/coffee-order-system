@@ -1,6 +1,6 @@
 package com.lihao.CoffeeOrderSystem.controller;
 
-import com.lihao.CoffeeOrderSystem.Service.UserService;
+import com.lihao.CoffeeOrderSystem.service.UserService;
 import com.lihao.CoffeeOrderSystem.entity.User;
 import com.lihao.CoffeeOrderSystem.utils.PinYinUtils;
 import com.lihao.CoffeeOrderSystem.utils.ResponseResult;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController

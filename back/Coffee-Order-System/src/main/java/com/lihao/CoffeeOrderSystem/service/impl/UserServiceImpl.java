@@ -1,6 +1,6 @@
-package com.lihao.CoffeeOrderSystem.Service.impl;
+package com.lihao.CoffeeOrderSystem.service.impl;
 
-import com.lihao.CoffeeOrderSystem.Service.UserService;
+import com.lihao.CoffeeOrderSystem.service.UserService;
 import com.lihao.CoffeeOrderSystem.entity.User;
 import com.lihao.CoffeeOrderSystem.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;

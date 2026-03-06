@@ -1,6 +1,6 @@
 package com.lihao.CoffeeOrderSystem.controller;
 
-import com.lihao.CoffeeOrderSystem.Service.OrderService;
+import com.lihao.CoffeeOrderSystem.service.OrderService;
 import com.lihao.CoffeeOrderSystem.entity.Order;
 import com.lihao.CoffeeOrderSystem.entity.OrderItem;
 import com.lihao.CoffeeOrderSystem.utils.ResponseResult;
