@@ -6,9 +6,13 @@
         <div class="header-content">
           <h1 class="logo">☕ 咖啡点单系统</h1>
           <div class="nav-links">
-            <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
-            <el-button type="text" @click="$router.push('/cart')">购物车</el-button>
-            <el-button type="text" @click="$router.push('/orders')">订单</el-button>
+            <!-- 顾客功能 -->
+            <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/menu')">菜单</el-button>
+            <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/cart')">购物车</el-button>
+            <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/orders')">我的订单</el-button>
+            <!-- 店员功能 -->
+            <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff')">待处理订单</el-button>
+            <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
             <el-button v-if="!isLoggedIn" type="text" @click="$router.push('/login')">登录</el-button>
             <el-button v-else type="text" @click="$router.push('/profile')">{{ userInfo.username }}</el-button>
           </div>
@@ -18,13 +22,68 @@
       <!-- 主要内容区域 -->
       <div class="main-content">
         <div class="welcome-section">
-          <h2>欢迎来到我们的咖啡世界</h2>
-          <p>精心调制的每一杯咖啡，为您带来温暖与舒适</p>
-          <el-button type="primary" size="large" @click="$router.push('/menu')">开始点单</el-button>
+          <!-- 顾客欢迎内容 -->
+          <div v-if="!isLoggedIn || userInfo.role === 1">
+            <h2>欢迎来到我们的咖啡世界</h2>
+            <p>精心调制的每一杯咖啡，为您带来温暖与舒适</p>
+            <el-button type="primary" size="large" @click="$router.push('/menu')">开始点单</el-button>
+          </div>
+          
+          <!-- 店员欢迎内容 -->
+          <div v-if="isLoggedIn && userInfo.role === 2">
+            <h2>店员工作台</h2>
+            <p>管理订单，服务顾客，提升效率</p>
+          </div>
         </div>
 
-        <!-- 推荐咖啡展示 -->
-        <div class="recommended-section">
+        <!-- 店员订单统计 -->
+        <div v-if="isLoggedIn && userInfo.role === 2" class="staff-dashboard">
+          <h3>销售统计</h3>
+          <div class="stats-grid">
+            <el-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-number">¥{{ todaySales.toFixed(2) }}</div>
+                <div class="stat-label">今日销售额</div>
+              </div>
+            </el-card>
+            <el-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-number">¥{{ totalSales.toFixed(2) }}</div>
+                <div class="stat-label">历史总销售额</div>
+              </div>
+            </el-card>
+            <el-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-number">{{ completedOrdersCount }}</div>
+                <div class="stat-label">今日已完成订单</div>
+              </div>
+            </el-card>
+          </div>
+          
+          <h3 style="margin-top: 30px;">订单统计</h3>
+          <div class="stats-grid">
+            <el-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-number">{{ pendingOrdersCount }}</div>
+                <div class="stat-label">待接单</div>
+              </div>
+            </el-card>
+            <el-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-number">{{ processingOrdersCount }}</div>
+                <div class="stat-label">制作中</div>
+              </div>
+            </el-card>
+          </div>
+          
+          <div class="quick-actions">
+            <el-button type="primary" size="large" @click="$router.push('/staff')">处理待接单</el-button>
+            <el-button type="success" size="large" @click="$router.push('/staff/all-orders')">查看全部订单</el-button>
+          </div>
+        </div>
+
+        <!-- 顾客推荐咖啡展示 -->
+        <div v-if="!isLoggedIn || userInfo.role === 1" class="recommended-section">
           <h3>推荐咖啡</h3>
           <div class="coffee-display-container">
             <div class="coffee-carousel-section">
@@ -105,6 +164,61 @@ export default {
       }
     }
 
+    // 店员订单统计
+    const pendingOrdersCount = ref(0)
+    const processingOrdersCount = ref(0)
+    const completedOrdersCount = ref(0)
+    // 销售额统计
+    const todaySales = ref(0)
+    const totalSales = ref(0)
+
+    const loadOrderStats = async () => {
+      if (isLoggedIn.value && userInfo.value.role === 2) { // 店员角色
+        try {
+          // 加载订单数量统计
+          const pendingResponse = await axios.get('http://localhost:8080/api/order/byStatus/1')
+          if (pendingResponse.data.code === 200) {
+            pendingOrdersCount.value = pendingResponse.data.data ? pendingResponse.data.data.length : 0
+          }
+
+          const processingResponse = await axios.get('http://localhost:8080/api/order/byStatus/2')
+          if (processingResponse.data.code === 200) {
+            processingOrdersCount.value = processingResponse.data.data ? processingResponse.data.data.length : 0
+          }
+
+          const completedResponse = await axios.get('http://localhost:8080/api/order/byStatus/3')
+          if (completedResponse.data.code === 200) {
+            const completedOrders = completedResponse.data.data || []
+            completedOrdersCount.value = completedOrders.length
+            
+            // 计算今日销售额（已完成订单）
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            
+            todaySales.value = completedOrders
+              .filter(order => new Date(order.orderTime) >= today)
+              .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
+              
+            // 计算历史总销售额（所有已完成订单）
+            totalSales.value = completedOrders
+              .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
+          }
+          
+          // 获取所有订单用于计算历史总额
+          const allOrdersResponse = await axios.get('http://localhost:8080/api/order/allOrders/0')
+          if (allOrdersResponse.data.code === 200) {
+            const allOrders = allOrdersResponse.data.data || []
+            // 计算历史总销售额（所有已完成订单）
+            totalSales.value = allOrders
+              .filter(order => order.status === 3) // 仅已完成订单
+              .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
+          }
+        } catch (error) {
+          console.error('加载订单统计失败:', error)
+        }
+      }
+    }
+
     const handleCarouselChange = (index) => {
       // 当轮播图切换时，更新右侧的咖啡信息
       currentCoffee.value = limitedRecommendedCoffees.value[index]
@@ -119,6 +233,13 @@ export default {
       }
     }
 
+    onMounted(async () => {
+      loadRecommendedCoffees()
+      checkLoginStatus()
+      // 等待用户信息加载完成后再加载订单统计
+      setTimeout(loadOrderStats, 100)
+    })
+
     return {
       recommendedCoffees,
       limitedRecommendedCoffees,
@@ -126,7 +247,14 @@ export default {
       userInfo,
       currentCoffee,
       carouselRef,
-      handleCarouselChange
+      handleCarouselChange,
+      // 店员订单统计
+      pendingOrdersCount,
+      processingOrdersCount,
+      completedOrdersCount,
+      // 销售额统计
+      todaySales,
+      totalSales
     }
   }
 }
@@ -247,6 +375,60 @@ export default {
   font-weight: bold;
   color: #e74c3c;
   margin: 10px 0;
+}
+
+.staff-dashboard {
+  margin-top: 30px;
+}
+
+.staff-dashboard h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: #666;
+}
+
+.quick-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .quick-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .quick-actions .el-button {
+    width: 100%;
+    max-width: 300px;
+  }
 }
 
 .coffee-info-card .description {

@@ -41,4 +41,6 @@ public interface OrderService {
     List<OrderItem> getOrderItemsByOrderId(Integer orderId);
     
     boolean cancelOrder(Integer orderId);
+    
+    List<Order> getAllOrders();
 }

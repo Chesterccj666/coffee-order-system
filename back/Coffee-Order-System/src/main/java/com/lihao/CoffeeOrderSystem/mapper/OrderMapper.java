@@ -42,6 +42,12 @@ public interface OrderMapper {
     /**
      * 【店员筛选】根据状态查询订单
      */
-    @Select("SELECT * FROM `order` WHERE status = #{status} ORDER BY order_time")
+    @Select("SELECT * FROM `order` WHERE status = #{status} ORDER BY order_time DESC")
     List<Order> selectByStatus(Integer status);
+    
+    /**
+     * 【店员功能】查询所有订单
+     */
+    @Select("SELECT * FROM `order` ORDER BY order_time DESC")
+    List<Order> selectAllOrders();
 }

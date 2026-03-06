@@ -207,4 +207,9 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("取消订单失败", e);
         }
     }
+    
+    @Override
+    public List<Order> getAllOrders() {
+        return orderMapper.selectAllOrders();
+    }
 }

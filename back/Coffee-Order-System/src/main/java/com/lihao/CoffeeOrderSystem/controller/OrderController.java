@@ -107,7 +107,30 @@ public class OrderController {
     @GetMapping("/byStatus/{status}")
     public Object getOrdersByStatus(@PathVariable Integer status) {
         try {
+            // 注意：实际应用中应该验证用户身份和角色权限
+            // 这里简化处理，实际部署时需要从请求头或session中获取用户信息
             List<Order> orders = orderService.getOrdersByStatus(status);
+            return new ResponseResult<>(200, "获取成功", orders);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
+    
+    /**
+     * 获取所有订单（供店员使用，根据状态）
+     * 当status为0时返回所有状态的订单
+     */
+    @GetMapping("/allOrders/{status}")
+    public Object getAllOrdersByStatus(@PathVariable Integer status) {
+        try {
+            List<Order> orders = null;
+            if (status == 0) {
+                // 返回所有状态的订单
+                orders = orderService.getAllOrders();
+            } else {
+                // 返回指定状态的订单
+                orders = orderService.getOrdersByStatus(status);
+            }
             return new ResponseResult<>(200, "获取成功", orders);
         } catch (Exception e) {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
