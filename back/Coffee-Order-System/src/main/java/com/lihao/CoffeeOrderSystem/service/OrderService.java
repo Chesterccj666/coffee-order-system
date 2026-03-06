@@ -43,4 +43,9 @@ public interface OrderService {
     boolean cancelOrder(Integer orderId);
     
     List<Order> getAllOrders();
+    
+    /**
+     * 更新取餐码
+     */
+    boolean updateTakeCode(Integer id, String takeCode);
 }

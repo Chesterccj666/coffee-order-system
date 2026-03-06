@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
             order.setStatus(1); // 待接单
             order.setOrderTime(LocalDateTime.now());
             order.setOrderNo(generateOrderNo()); // 生成订单号
-            order.setTakeCode(generateTakeCode()); // 生成取餐码
+            // 注意：这里不再生成取餐码，取餐码将在订单完成时生成
 
             // 插入订单
             int orderResult = orderMapper.insert(order);
@@ -128,6 +128,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public boolean updateOrderStatus(Integer id, Integer status) {
+        // 如果是将订单状态更新为"已完成"(状态3)，则生成并设置取餐码
+        if (status == 3) {
+            // 先查询订单，检查是否已有取餐码
+            Order order = orderMapper.selectById(id);
+            if (order != null && (order.getTakeCode() == null || order.getTakeCode().isEmpty())) {
+                // 生成取餐码
+                String takeCode = generateTakeCode();
+                // 更新取餐码
+                int codeResult = orderMapper.updateTakeCode(id, takeCode);
+                if (codeResult <= 0) {
+                    throw new RuntimeException("更新取餐码失败");
+                }
+            }
+        }
+        
         int result = orderMapper.updateStatus(id, status);
         return result > 0;
     }
@@ -206,6 +221,12 @@ public class OrderServiceImpl implements OrderService {
             e.printStackTrace();
             throw new RuntimeException("取消订单失败", e);
         }
+    }
+    
+    @Override
+    public boolean updateTakeCode(Integer id, String takeCode) {
+        int result = orderMapper.updateTakeCode(id, takeCode);
+        return result > 0;
     }
     
     @Override

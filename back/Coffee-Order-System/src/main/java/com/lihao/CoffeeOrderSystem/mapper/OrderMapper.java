@@ -32,6 +32,12 @@ public interface OrderMapper {
      */
     @Update("UPDATE `order` SET status = #{status} WHERE id = #{id}")
     int updateStatus(@Param("id") Integer id, @Param("status") Integer status);
+    
+    /**
+     * 【更新取餐码】在订单完成时设置取餐码
+     */
+    @Update("UPDATE `order` SET take_code = #{takeCode} WHERE id = #{id}")
+    int updateTakeCode(@Param("id") Integer id, @Param("takeCode") String takeCode);
 
     /**
      * 【根据订单号查询】备用

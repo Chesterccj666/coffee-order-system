@@ -2,7 +2,6 @@ package com.lihao.CoffeeOrderSystem.mapper;
 
 import com.lihao.CoffeeOrderSystem.entity.User;
 import org.apache.ibatis.annotations.*;
-import java.util.List;
 
 @Mapper
 public interface UserMapper {
