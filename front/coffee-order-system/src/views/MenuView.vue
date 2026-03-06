@@ -97,12 +97,14 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 
 export default {
   name: 'MenuView',
   setup() {
+    const router = useRouter()
     const coffees = ref([])
     const activeCategory = ref('all')
     const isLoggedIn = ref(false)
@@ -227,7 +229,7 @@ export default {
 
     const goToCart = () => {
       showAddCartSuccess.value = false
-      $router.push('/cart')
+      router.push('/cart')
     }
 
     return {
