@@ -41,8 +41,7 @@
             <div class="order-header">
               <div class="order-info">
                 <span class="order-no">订单号: {{ order.orderNo }}</span>
-                <span class="order-time">{{ formatDate(order.orderTime) }}</span>
-                <span class="take-code">取餐码: {{ order.takeCode }}</span>
+                <span class="order-time">下单时间：{{ formatDate(order.orderTime) }}</span>
               </div>
               <div class="order-status">
                 <el-tag :type="getStatusTagType(order.status)">
@@ -66,14 +65,21 @@
                       <span class="spec">{{ getTempText(item.temperature) }}</span>
                     </div>
                   </div>
+
                   <div class="item-quantity">×{{ item.quantity }}</div>
                   <div class="item-price">¥{{ item.totalPrice }}</div>
                 </div>
               </div>
               
               <div class="order-total">
-                <span class="total-label">合计：</span>
-                <span class="total-amount">¥{{ order.totalAmount }}</span>
+                <div class="order-total-content">
+                  <div class="item-take-code" v-if="order.takeCode">
+                    <span class="take-code-label">取餐码:</span>
+                    <span class="take-code-value">{{ order.takeCode }}</span>
+                  </div>
+                  <span class="total-label">合计：</span>
+                  <span class="total-amount">¥{{ order.totalAmount }}</span>
+                </div>
               </div>
             </div>
             
@@ -325,6 +331,10 @@ export default {
 
 .order-card {
   margin-bottom: 20px;
+  width: 50% !important; /* 设定为原来宽度的一半 */
+  display: block; /* 确保是块级元素 */
+  margin-left: auto; /* 居中对齐 */
+  margin-right: auto; /* 居中对齐 */
 }
 
 .order-header {
@@ -402,9 +412,37 @@ export default {
 }
 
 .order-total {
-  text-align: right;
   padding: 10px 0;
   border-top: 1px solid #eee;
+}
+
+.order-total-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px; /* 在取餐码和合计金额之间留一定间隙 */
+}
+
+.item-take-code {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #f0f9ff;
+  border: 1px solid #b3d8ff;
+  border-radius: 4px;
+}
+
+.take-code-label {
+  font-size: 14px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.take-code-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #409eff;
+  letter-spacing: 2px;
 }
 
 .total-label {
