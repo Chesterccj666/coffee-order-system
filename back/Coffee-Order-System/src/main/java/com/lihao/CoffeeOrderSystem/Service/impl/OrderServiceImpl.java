@@ -161,4 +161,50 @@ public class OrderServiceImpl implements OrderService {
         int code = random.nextInt(10000); // 0-9999
         return String.format("%04d", code);
     }
+    
+    @Override
+    @Transactional
+    public boolean cancelOrder(Integer orderId) {
+        try {
+            // 获取订单信息
+            Order order = orderMapper.selectById(orderId);
+            if (order == null) {
+                return false;
+            }
+            
+            // 检查订单状态，只有待接单的订单才能取消
+            if (order.getStatus() != 1) { // 假设1是待接单状态
+                return false;
+            }
+            
+            // 获取订单项信息
+            List<OrderItem> orderItems = orderItemService.getOrderItemsByOrderId(orderId);
+            
+            // 恢复库存并减少销量
+            for (OrderItem item : orderItems) {
+                // 增加库存
+                int stockResult = coffeeMapper.addStock(item.getCoffeeId(), item.getQuantity());
+                if (stockResult <= 0) {
+                    throw new RuntimeException("恢复库存失败");
+                }
+                
+                // 减少销量
+                int salesResult = coffeeMapper.reduceSales(item.getCoffeeId(), item.getQuantity());
+                if (salesResult <= 0) {
+                    throw new RuntimeException("减少销量失败");
+                }
+            }
+            
+            // 更新订单状态为已取消（状态4表示已取消）
+            int result = orderMapper.updateStatus(orderId, 4);
+            if (result <= 0) {
+                throw new RuntimeException("更新订单状态失败");
+            }
+            
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("取消订单失败", e);
+        }
+    }
 }

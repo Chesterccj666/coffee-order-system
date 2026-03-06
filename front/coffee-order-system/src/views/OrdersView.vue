@@ -248,12 +248,7 @@ export default {
           type: 'warning'
         })
 
-        const response = await axios.put('http://localhost:8080/api/order/updateStatus', null, {
-          params: {
-            id: orderId,
-            status: 4 // 已取消
-          }
-        })
+        const response = await axios.put(`http://localhost:8080/api/order/cancel/${orderId}`)
 
         if (response.data.code === 200) {
           ElMessage.success('订单已取消')

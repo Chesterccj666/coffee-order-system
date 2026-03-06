@@ -29,8 +29,9 @@
           <div class="coffee-display-container">
             <div class="coffee-carousel-section">
               <el-carousel 
-                height="200px" 
-                :interval="5000" 
+                height="200px"
+                :autoplay="true"
+                :interval="3000" 
                 indicator-position="outside"
                 @change="handleCarouselChange"
                 ref="carouselRef"

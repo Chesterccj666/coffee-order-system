@@ -39,4 +39,6 @@ public interface OrderService {
      * 根据订单ID查询订单项
      */
     List<OrderItem> getOrderItemsByOrderId(Integer orderId);
+    
+    boolean cancelOrder(Integer orderId);
 }

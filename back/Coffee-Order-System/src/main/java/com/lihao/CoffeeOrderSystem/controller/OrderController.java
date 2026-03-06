@@ -138,4 +138,21 @@ public class OrderController {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }
     }
+    
+    /**
+     * 取消订单
+     */
+    @PutMapping("/cancel/{orderId}")
+    public Object cancelOrder(@PathVariable Integer orderId) {
+        try {
+            boolean success = orderService.cancelOrder(orderId);
+            if (success) {
+                return new ResponseResult<>(200, "订单取消成功", null);
+            } else {
+                return new ResponseResult<>(500, "订单取消失败", null);
+            }
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "订单取消失败：" + e.getMessage(), null);
+        }
+    }
 }

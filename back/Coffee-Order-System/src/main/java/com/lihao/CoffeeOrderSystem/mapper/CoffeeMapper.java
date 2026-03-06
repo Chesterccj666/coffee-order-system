@@ -43,4 +43,16 @@ public interface CoffeeMapper {
      */
     @Update("UPDATE coffee SET sales = sales + #{quantity} WHERE id = #{id}")
     int addSales(@Param("id") Integer id, @Param("quantity") Integer quantity);
+    
+    /**
+     * 【取消订单】增加库存
+     */
+    @Update("UPDATE coffee SET stock = stock + #{quantity} WHERE id = #{id}")
+    int addStock(@Param("id") Integer id, @Param("quantity") Integer quantity);
+    
+    /**
+     * 【取消订单】减少销量
+     */
+    @Update("UPDATE coffee SET sales = sales - #{quantity} WHERE id = #{id} AND sales >= #{quantity}")
+    int reduceSales(@Param("id") Integer id, @Param("quantity") Integer quantity);
 }
