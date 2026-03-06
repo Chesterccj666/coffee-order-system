@@ -245,10 +245,9 @@ export default {
     }
 
     const getStatusText = (status) => {
-      // 店员视角的状态显示
       switch (status) {
         case 1: return '待接单'
-        case 2: return '已接单'
+        case 2: return '制作中'
         case 3: return '已完成'
         case 4: return '已取消'
         default: return '未知状态'

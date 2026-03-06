@@ -86,14 +86,7 @@
               >
                 取消订单
               </el-button>
-              <el-button 
-                v-if="order.status === 3" 
-                type="success" 
-                size="small" 
-                @click="completeOrder(order.id)"
-              >
-                确认收货
-              </el-button>
+
             </div>
           </el-card>
         </div>
@@ -202,14 +195,13 @@ export default {
     }
 
     const getStatusText = (status) => {
-      // 顾客视角的状态显示
-      const customerStatusMap = {
+      const statusMap = {
         1: '待接单',
         2: '制作中',
-        3: '可取餐',
+        3: '已完成',
         4: '已取消'
       }
-      return customerStatusMap[status] || '未知状态'
+      return statusMap[status] || '未知状态'
     }
 
     const getStatusTagType = (status) => {
@@ -269,34 +261,7 @@ export default {
       }
     }
 
-    const completeOrder = async (orderId) => {
-      try {
-        await ElMessageBox.confirm('确定已收到商品并完成订单吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
 
-        const response = await axios.put('http://localhost:8080/api/order/updateStatus', null, {
-          params: {
-            id: orderId,
-            status: 3 // 已完成
-          }
-        })
-
-        if (response.data.code === 200) {
-          ElMessage.success('订单已完成')
-          loadOrders() // 重新加载订单
-        } else {
-          ElMessage.error(response.data.message)
-        }
-      } catch (error) {
-        if (error !== 'cancel') {
-          console.error('完成订单失败:', error)
-          ElMessage.error('完成订单失败')
-        }
-      }
-    }
 
     const formatDate = (dateString) => {
       if (!dateString) return ''
@@ -315,7 +280,6 @@ export default {
       getTempText,
       showActions,
       cancelOrder,
-      completeOrder,
       formatDate,
       loadOrders
     }
