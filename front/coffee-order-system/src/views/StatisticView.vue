@@ -70,26 +70,12 @@
           </el-card>
         </div>
 
-        <!-- 热销咖啡列表 -->
-        <el-card class="hot-coffees-card">
+        <!-- 过去七天销售额统计 -->
+        <el-card class="daily-sales-card">
           <template #header>
-            <span class="card-title">热销咖啡 Top 10</span>
+            <span class="card-title">过去七天销售额统计</span>
           </template>
-          <el-table 
-            :data="topSellingCoffees" 
-            stripe 
-            style="width: 100%"
-          >
-            <el-table-column prop="id" label="ID" width="80"></el-table-column>
-            <el-table-column prop="name" label="咖啡名称" width="150"></el-table-column>
-            <el-table-column prop="sales" label="销量" width="100"></el-table-column>
-            <el-table-column prop="category" label="类别" width="100"></el-table-column>
-            <el-table-column prop="price" label="价格">
-              <template #default="{ row }">
-                ¥{{ row.price }}
-              </template>
-            </el-table-column>
-          </el-table>
+          <div ref="dailySalesChartRef" class="chart-container"></div>
         </el-card>
       </el-main>
 
@@ -105,7 +91,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { getTotalSalesAmount, getCategorySalesStats, getTopSellingCoffee, getAllCoffeeCategories } from '@/api/admin'
+import { getTotalSalesAmount, getCategorySalesStats, getTopSellingCoffee, getAllCoffeeCategories, getDailySalesForLastWeek } from '@/api/admin'
 
 export default {
   name: 'StatisticsView',
@@ -113,10 +99,10 @@ export default {
     const totalSales = ref(0)
     const totalCoffees = ref(0)
     const totalCategories = ref(0)
-    const topSellingCoffees = ref([])
     
     const categorySalesChartRef = ref(null)
     const coffeeSalesChartRef = ref(null)
+    const dailySalesChartRef = ref(null)
     
     // 登录状态相关
     const isLoggedIn = ref(false)
@@ -179,21 +165,69 @@ export default {
           ElMessage.error('加载类别销售数据失败')
         }
 
-        // 加载热销咖啡数据
+        // 准备销量图表数据（使用类别销售数据替代）
         const topSellingResponse = await getTopSellingCoffee(10)
         if (topSellingResponse.code === 200) {
-          topSellingCoffees.value = topSellingResponse.data || []
-          totalCoffees.value = topSellingCoffees.value.length
+          const topSellingData = topSellingResponse.data || []
+          totalCoffees.value = topSellingData.length
           
           // 准备销量图表数据
-          const coffeeNames = topSellingCoffees.value.map(coffee => coffee.name)
-          const coffeeSales = topSellingCoffees.value.map(coffee => coffee.sales)
+          const coffeeNames = topSellingData.map(coffee => coffee.name)
+          const coffeeSales = topSellingData.map(coffee => coffee.sales)
           
           // 渲染咖啡销量图表
           await nextTick()
           renderCoffeeSalesChart(coffeeNames, coffeeSales)
         } else {
           ElMessage.error('加载热销咖啡数据失败')
+        }
+        
+        // 加载过去七天销售额数据
+        const dailySalesResponse = await getDailySalesForLastWeek()
+        if (dailySalesResponse.code === 200) {
+          const dailySalesData = dailySalesResponse.data || []
+          
+          // 准备图表数据
+          const dates = dailySalesData.map(item => {
+            // 处理后端返回的数据结构，可能是Map或对象
+            // 检查所有可能的键名
+            let dateStr = '未知日期';
+            if (item.date) {
+              dateStr = item.date
+            } else if (item.DATE) {
+              dateStr = item.DATE
+            } else if (item['DATE(order_time)']) {
+              dateStr = item['DATE(order_time)']
+            } else if (item['date(order_time)']) {
+              dateStr = item['date(order_time)']
+            }
+            
+            // 格式化日期，只保留月和日
+            if (dateStr !== '未知日期') {
+              // 将日期字符串转换为Date对象再格式化
+              const dateObj = new Date(dateStr);
+              const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需加1
+              const day = String(dateObj.getDate()).padStart(2, '0');
+              return `${month}-${day}`;
+            }
+            return dateStr;
+          })
+          const sales = dailySalesData.map(item => {
+            if (item.sales !== undefined) {
+              return parseFloat(item.sales) || 0
+            } else if (item.SALES !== undefined) {
+              return parseFloat(item.SALES) || 0
+            } else if (item['IFNULL(SUM(total_amount), 0)'] !== undefined) {
+              return parseFloat(item['IFNULL(SUM(total_amount), 0)']) || 0
+            }
+            return 0
+          })
+          
+          // 渲染每日销售额图表
+          await nextTick()
+          renderDailySalesChart(dates, sales)
+        } else {
+          ElMessage.error('加载每日销售额数据失败')
         }
       } catch (error) {
         console.error('加载统计数据失败:', error)
@@ -289,13 +323,64 @@ export default {
       })
     }
 
+    const renderDailySalesChart = (dates, sales) => {
+      if (!dailySalesChartRef.value) return
+      
+      const chart = echarts.init(dailySalesChartRef.value)
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          }
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '8%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: dates
+        },
+        yAxis: {
+          type: 'value',
+          name: '销售额 (元)'
+        },
+        series: [{
+          name: '销售额',
+          type: 'line',
+          data: sales,
+          smooth: true,
+          itemStyle: {
+            color: '#fac858'
+          },
+          lineStyle: {
+            color: '#fac858'
+          },
+          areaStyle: {
+            opacity: 0.2,
+            color: '#fac858'
+          }
+        }]
+      }
+      chart.setOption(option)
+      
+      // 响应窗口大小变化
+      window.addEventListener('resize', () => {
+        chart.resize()
+      })
+    }
+
     return {
       totalSales,
       totalCoffees,
       totalCategories,
-      topSellingCoffees,
       categorySalesChartRef,
       coffeeSalesChartRef,
+      dailySalesChartRef,
       // 登录状态相关
       isLoggedIn,
       userInfo
@@ -392,12 +477,13 @@ export default {
   height: 320px;
 }
 
-.hot-coffees-card {
+.daily-sales-card {
   margin-top: 20px;
 }
 
 .card-title {
   font-size: 16px;
+
   font-weight: bold;
 }
 

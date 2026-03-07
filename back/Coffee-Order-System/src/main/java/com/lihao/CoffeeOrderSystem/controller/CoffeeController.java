@@ -1,6 +1,7 @@
 package com.lihao.CoffeeOrderSystem.controller;
 
 import com.lihao.CoffeeOrderSystem.service.CoffeeService;
+import com.lihao.CoffeeOrderSystem.service.OrderService;
 import com.lihao.CoffeeOrderSystem.entity.Coffee;
 import com.lihao.CoffeeOrderSystem.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class CoffeeController {
 
     @Autowired
     private CoffeeService coffeeService;
+    
+    @Autowired
+    private OrderService orderService;
 
     /**
      * 获取所有上架的咖啡
@@ -332,6 +336,19 @@ public class CoffeeController {
                 totalSales = 0.0;
             }
             return new ResponseResult<>(200, "获取成功", totalSales);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
+    
+    /**
+     * 管理员功能：获取过去七天的每日销售额
+     */
+    @GetMapping("/admin/daily-sales-last-week")
+    public Object getDailySalesForLastWeek() {
+        try {
+            List<Map<String, Object>> dailySales = orderService.getDailySalesForLastWeek();
+            return new ResponseResult<>(200, "获取成功", dailySales);
         } catch (Exception e) {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }

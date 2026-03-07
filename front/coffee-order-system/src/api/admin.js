@@ -61,3 +61,8 @@ export const getCategorySalesStats = () => {
 export const getTotalSalesAmount = () => {
   return request.get('/api/coffee/admin/total-sales')
 }
+
+// 获取过去七天的每日销售额
+export const getDailySalesForLastWeek = () => {
+  return request.get('/api/coffee/admin/daily-sales-last-week')
+}

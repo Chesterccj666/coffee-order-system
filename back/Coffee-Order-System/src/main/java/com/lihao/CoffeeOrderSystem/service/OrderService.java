@@ -3,6 +3,7 @@ package com.lihao.CoffeeOrderSystem.service;
 import com.lihao.CoffeeOrderSystem.entity.Order;
 import com.lihao.CoffeeOrderSystem.entity.OrderItem;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
     /**
@@ -48,4 +49,9 @@ public interface OrderService {
      * 更新取餐码
      */
     boolean updateTakeCode(Integer id, String takeCode);
+    
+    /**
+     * 获取过去七天的每日销售额
+     */
+    List<Map<String, Object>> getDailySalesForLastWeek();
 }

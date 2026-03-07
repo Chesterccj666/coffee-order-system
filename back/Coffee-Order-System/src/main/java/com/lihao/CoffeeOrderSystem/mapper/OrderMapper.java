@@ -3,6 +3,7 @@ package com.lihao.CoffeeOrderSystem.mapper;
 import com.lihao.CoffeeOrderSystem.entity.Order;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -56,4 +57,10 @@ public interface OrderMapper {
      */
     @Select("SELECT * FROM `order` ORDER BY order_time DESC")
     List<Order> selectAllOrders();
+    
+    /**
+     * 【管理员功能】获取过去七天的每日销售额
+     */
+    @Select("SELECT DATE(order_time) as date, IFNULL(SUM(total_amount), 0) as sales FROM `order` WHERE status = 3 AND order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(order_time) ORDER BY DATE(order_time)")
+    List<Map<String, Object>> selectDailySalesForLastWeek();
 }

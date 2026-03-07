@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -232,5 +233,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getAllOrders() {
         return orderMapper.selectAllOrders();
+    }
+    
+    @Override
+    public List<Map<String, Object>> getDailySalesForLastWeek() {
+        return orderMapper.selectDailySalesForLastWeek();
     }
 }
