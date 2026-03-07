@@ -17,16 +17,7 @@
       <el-main class="main-content">
         <h2 class="page-title">全部订单</h2>
         
-        <!-- 订单过滤器 -->
-        <div class="filter-section">
-          <el-select v-model="filterStatus" placeholder="选择订单状态" @change="loadOrders" class="filter-select">
-            <el-option label="全部" value=""></el-option>
-            <el-option label="待接单" :value="1"></el-option>
-            <el-option label="制作中" :value="2"></el-option>
-            <el-option label="已完成" :value="3"></el-option>
-            <el-option label="已取消" :value="4"></el-option>
-          </el-select>
-        </div>
+
 
         <!-- 订单列表 -->
         <div class="orders-list">
@@ -35,55 +26,51 @@
             :key="order.id" 
             class="order-card"
           >
-            <div class="order-header">
+            <!-- 订单信息和详情并排显示 -->
+            <div class="order-content">
               <div class="order-info">
-                <p><strong>订单号：</strong>{{ order.orderNo }}</p>
-                <p><strong>下单时间：</strong>{{ formatDate(order.orderTime) }}</p>
-                <p><strong>取餐码：</strong>{{ order.takeCode }}</p>
-                <p><strong>订单状态：</strong>
-                  <el-tag 
-                    :type="getStatusType(order.status)" 
-                    size="small"
-                  >
-                    {{ getStatusText(order.status) }}
-                  </el-tag>
-                </p>
-                <p><strong>总金额：</strong>¥{{ order.totalAmount }}</p>
-                <p><strong>顾客备注：</strong>{{ order.remark || '无' }}</p>
-              </div>
-              <div class="order-actions">
-                <el-button 
-                  v-if="order.status === 1" 
-                  type="primary" 
-                  @click="acceptOrder(order.id)"
-                >
-                  接单
-                </el-button>
-                <el-button 
-                  v-if="order.status === 2" 
-                  type="success" 
-                  @click="completeOrder(order.id)"
-                >
-                  出餐
-                </el-button>
-              </div>
-            </div>
-            
-            <!-- 订单详情 -->
-            <div class="order-details">
-              <h4>订单详情：</h4>
-              <div v-for="item in order.items" :key="item.id" class="order-item">
-                <div class="item-info">
-                  <img :src="item.coffeeImage" class="item-image" alt="咖啡图片" />
-                  <div class="item-text">
-                    <p><strong>{{ item.coffeeName }}</strong></p>
-                    <p>数量：{{ item.quantity }}</p>
-                    <p>单价：¥{{ item.price }}</p>
-                    <p>小计：¥{{ item.totalPrice }}</p>
-                    <p>甜度：{{ getSweetText(item.sweet) }}</p>
-                    <p>温度：{{ getTemperatureText(item.temperature) }}</p>
-                  </div>
+                <div class="order-info-top">
+                  <p><strong>订单号：</strong>{{ order.orderNo }}</p>
+                  <p><strong>下单时间：</strong>{{ formatDate(order.orderTime) }}</p>
+                  <p><strong>取餐码：</strong>{{ order.takeCode || '无' }}</p>
+                  <p><strong>总金额：</strong>¥{{ order.totalAmount }}</p>
+                  <p><strong>顾客备注：</strong>{{ order.remark || '无' }}</p>
                 </div>
+                <div class="order-status-bottom">
+                  <p><strong>订单状态：</strong>
+                    <el-tag 
+                      :type="getStatusType(order.status)" 
+                      size="large"
+                    >
+                      {{ getStatusText(order.status) }}
+                    </el-tag>
+                  </p>
+                </div>
+                <!-- 查看订单详情按钮 - 使用Popover -->
+                <el-popover
+                  placement="right"
+                  :width="300"
+                  trigger="hover"
+                >
+                  <template #reference>
+                    <button class="view-details-btn">查看订单详情</button>
+                  </template>
+                  <div class="popover-order-details">
+                    <h4>订单详情：</h4>
+                    <div v-for="item in order.items" :key="item.id" class="order-item">
+                      <div class="item-info">
+                        <div class="item-text">
+                          <p><strong>{{ item.coffeeName }}</strong></p>
+                          <p>数量：{{ item.quantity }}</p>
+                          <p>单价：¥{{ item.price }}</p>
+                          <p>小计：¥{{ item.totalPrice }}</p>
+                          <p>甜度：{{ getSweetText(item.sweet) }}</p>
+                          <p>温度：{{ getTemperatureText(item.temperature) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </el-popover>
               </div>
             </div>
           </el-card>
@@ -103,7 +90,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAllOrdersByStatus, getOrdersByStatus, updateOrderStatus, getOrderDetail } from '@/api/order'
 import { useRouter } from 'vue-router'
@@ -113,7 +100,6 @@ export default {
   setup() {
     const router = useRouter()
     const orders = ref([])
-    const filterStatus = ref('')
     const isLoggedIn = ref(false)
     const userInfo = ref({})
 
@@ -123,6 +109,10 @@ export default {
         loadOrders()
       }
     })
+
+
+
+
 
     const checkLoginStatus = () => {
       // 从本地存储获取用户信息
@@ -144,39 +134,24 @@ export default {
 
     const loadOrders = async () => {
       try {
-        let ordersData = []
-        if (filterStatus.value) {
-          // 如果有状态过滤，只获取特定状态的订单
-          const response = await getOrdersByStatus(filterStatus.value)
-          if (response.code === 200) {
-            ordersData = response.data || []
-          } else {
-            ElMessage.error(response.message)
-            return
-          }
-        } else {
-          // 如果没有状态过滤，获取所有状态的订单
-          const response = await getAllOrdersByStatus(0)
-          if (response.code === 200) {
-            ordersData = response.data || []
-          } else {
-            ElMessage.error(response.message)
-            return
-          }
-        }
+        // 获取所有状态的订单
+        const response = await getAllOrdersByStatus(0)
+        if (response.code === 200) {
+          let ordersData = response.data || []
+          
+          orders.value = ordersData
         
-        orders.value = ordersData
-        
-        // 获取每个订单的详细信息
-        for (let i = 0; i < orders.value.length; i++) {
-          try {
-            const orderDetailResponse = await getOrderDetail(orders.value[i].id)
-            if (orderDetailResponse.code === 200) {
-              orders.value[i].items = orderDetailResponse.data.items || []
+          // 获取每个订单的详细信息
+          for (let i = 0; i < orders.value.length; i++) {
+            try {
+              const orderDetailResponse = await getOrderDetail(orders.value[i].id)
+              if (orderDetailResponse.code === 200) {
+                orders.value[i].items = orderDetailResponse.data.items || []
+              }
+            } catch (err) {
+              console.warn(`获取订单 ${orders.value[i].id} 详情失败:`, err)
+              orders.value[i].items = []
             }
-          } catch (err) {
-            console.warn(`获取订单 ${orders.value[i].id} 详情失败:`, err)
-            orders.value[i].items = []
           }
         }
       } catch (error) {
@@ -185,53 +160,7 @@ export default {
       }
     }
 
-    const acceptOrder = async (orderId) => {
-      try {
-        await ElMessageBox.confirm('确定要接此订单吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
 
-        const response = await updateOrderStatus(orderId, 2) // 已接单/制作中
-
-        if (response.code === 200) {
-          ElMessage.success('接单成功')
-          loadOrders() // 刷新订单列表
-        } else {
-          ElMessage.error(response.message)
-        }
-      } catch (error) {
-        if (error !== 'cancel') {
-          console.error('接单失败:', error)
-          ElMessage.error('接单失败')
-        }
-      }
-    }
-
-    const completeOrder = async (orderId) => {
-      try {
-        await ElMessageBox.confirm('确定已完成此订单吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-
-        const response = await updateOrderStatus(orderId, 3) // 已完成/可取餐
-
-        if (response.code === 200) {
-          ElMessage.success('出餐成功')
-          loadOrders() // 刷新订单列表
-        } else {
-          ElMessage.error(response.message)
-        }
-      } catch (error) {
-        if (error !== 'cancel') {
-          console.error('出餐失败:', error)
-          ElMessage.error('出餐失败')
-        }
-      }
-    }
 
     const getStatusText = (status) => {
       switch (status) {
@@ -280,11 +209,8 @@ export default {
 
     return {
       orders,
-      filterStatus,
       userInfo,
       loadOrders,
-      acceptOrder,
-      completeOrder,
       getStatusText,
       getStatusType,
       getSweetText,
@@ -337,51 +263,83 @@ export default {
   color: #333;
 }
 
-.filter-section {
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.filter-select {
-  width: 200px;
-}
-
 .orders-list {
   max-width: 1200px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .order-card {
-  margin-bottom: 20px;
+  margin-bottom: 0;
+  height: fit-content;
 }
 
-.order-header {
+.order-content {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  gap: 20px;
 }
 
 .order-info {
   flex: 1;
-}
-
-.order-info p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-.order-actions {
+  min-width: 0; /* 允许收缩 */
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  height: 100%;
+  position: relative;
 }
 
-.order-details h4 {
-  margin-bottom: 10px;
+.order-info-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.order-info-top p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.order-status-bottom {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+.order-status-bottom p {
+  margin: 8px 0;
+  font-size: 20px;
+}
+
+.order-status-bottom .el-tag {
+  font-size: 18px;
+  padding: 8px 16px;
+}
+
+.view-details-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px 20px;
+  background-color: #409EFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 10;
+  font-weight: 500;
+}
+
+.view-details-btn:hover {
+  background-color: #2a7bea;
+}
+
+.popover-order-details h4 {
+  margin: 10px 0;
   color: #333;
+  font-size: 18px;
 }
 
 .order-item {
@@ -396,21 +354,13 @@ export default {
   align-items: flex-start;
 }
 
-.item-image {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 10px;
-}
-
 .item-text {
   flex: 1;
 }
 
 .item-text p {
-  margin: 3px 0;
-  font-size: 13px;
+  margin: 5px 0;
+  font-size: 16px;
 }
 
 .empty-orders {
