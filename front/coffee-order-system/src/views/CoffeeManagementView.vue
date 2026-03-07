@@ -58,7 +58,24 @@
           </el-table-column>
           <el-table-column prop="description" label="描述" show-overflow-tooltip></el-table-column>
           <el-table-column prop="category" label="类别" width="100"></el-table-column>
-          <el-table-column prop="stock" label="库存" width="80"></el-table-column>
+          <el-table-column label="库存" width="120">
+            <template #header>
+              <div class="sort-header-inline">
+                <span>库存</span>
+                <el-button 
+                  size="small" 
+                  :type="stockSortOrder ? 'primary' : 'default'"
+                  @click="toggleStockSort"
+                  :icon="stockSortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'"
+                >
+                  {{ stockSortOrder === 'asc' ? '升序' : stockSortOrder === 'desc' ? '降序' : '排序' }}
+                </el-button>
+              </div>
+            </template>
+            <template #default="{ row }">
+              <span>{{ row.stock }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="状态" width="100">
             <template #default="{ row }">
               <el-tag :type="row.status === '1' ? 'success' : 'danger'">
@@ -73,7 +90,24 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="sales" label="销量" width="80"></el-table-column>
+          <el-table-column label="销量" width="120">
+            <template #header>
+              <div class="sort-header-inline">
+                <span>销量</span>
+                <el-button 
+                  size="small" 
+                  :type="salesSortOrder ? 'primary' : 'default'"
+                  @click="toggleSalesSort"
+                  :icon="salesSortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'"
+                >
+                  {{ salesSortOrder === 'asc' ? '升序' : salesSortOrder === 'desc' ? '降序' : '排序' }}
+                </el-button>
+              </div>
+            </template>
+            <template #default="{ row }">
+              <span>{{ row.sales }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" width="320">
             <template #default="{ row }">
               <el-button size="small" type="primary" @click="editCoffee(row)">编辑</el-button>
@@ -248,11 +282,14 @@ export default {
   },
   setup() {
     const coffeeList = ref([])
+    const originalCoffeeList = ref([]) // 保存原始列表用于排序
     const loading = ref(false)
     const showAddDialog = ref(false)
     const showEditDialog = ref(false)
     const addFormRef = ref()
     const editFormRef = ref()
+    const stockSortOrder = ref('') // '', 'asc', 'desc'
+    const salesSortOrder = ref('') // '', 'asc', 'desc'
     
     // 登录状态相关
     const isLoggedIn = ref(false)
@@ -335,7 +372,14 @@ export default {
         loading.value = true
         const response = await getAllCoffeeForAdmin()
         if (response.code === 200) {
-          coffeeList.value = response.data
+          originalCoffeeList.value = response.data
+          // 如果当前没有激活的排序，则显示原始数据
+          if (stockSortOrder.value === '' && salesSortOrder.value === '') {
+            coffeeList.value = [...originalCoffeeList.value]
+          } else {
+            // 如果有激活的排序，则应用排序
+            applyCurrentSort()
+          }
         } else {
           ElMessage.error(response.message)
         }
@@ -558,6 +602,76 @@ export default {
       return imageUrl + '?t=' + Date.now();
     }
 
+    // 切换库存排序
+    const toggleStockSort = () => {
+      // 如果当前是升序，则切换为降序；如果是降序，则清除排序；否则设置为升序
+      if (stockSortOrder.value === 'asc') {
+        stockSortOrder.value = 'desc'
+      } else if (stockSortOrder.value === 'desc') {
+        stockSortOrder.value = ''
+      } else {
+        stockSortOrder.value = 'asc'
+      }
+      // 如果按库存排序，则清空销量排序状态
+      if (stockSortOrder.value) {
+        salesSortOrder.value = ''
+      }
+      applyCurrentSort()
+    }
+
+    // 切换销量排序
+    const toggleSalesSort = () => {
+      // 如果当前是升序，则切换为降序；如果是降序，则清除排序；否则设置为升序
+      if (salesSortOrder.value === 'asc') {
+        salesSortOrder.value = 'desc'
+      } else if (salesSortOrder.value === 'desc') {
+        salesSortOrder.value = ''
+      } else {
+        salesSortOrder.value = 'asc'
+      }
+      // 如果按销量排序，则清空库存排序状态
+      if (salesSortOrder.value) {
+        stockSortOrder.value = ''
+      }
+      applyCurrentSort()
+    }
+
+    // 应用当前排序
+    const applyCurrentSort = () => {
+      if (!originalCoffeeList.value || originalCoffeeList.value.length === 0) return
+
+      let sortedList = [...originalCoffeeList.value]
+
+      if (stockSortOrder.value) {
+        sortedList.sort((a, b) => {
+          if (stockSortOrder.value === 'asc') {
+            return a.stock - b.stock
+          } else {
+            return b.stock - a.stock
+          }
+        })
+      } else if (salesSortOrder.value) {
+        sortedList.sort((a, b) => {
+          if (salesSortOrder.value === 'asc') {
+            return a.sales - b.sales
+          } else {
+            return b.sales - a.sales
+          }
+        })
+      }
+
+      coffeeList.value = sortedList
+    }
+
+    // 清除排序
+    const clearSort = () => {
+      stockSortOrder.value = ''
+      salesSortOrder.value = ''
+      if (originalCoffeeList.value) {
+        coffeeList.value = [...originalCoffeeList.value]
+      }
+    }
+
     return {
       coffeeList,
       loading,
@@ -580,6 +694,13 @@ export default {
       handleCloseAddDialog,
       handleCloseEditDialog,
       getImageUrl,
+      // 排序相关
+      stockSortOrder,
+      salesSortOrder,
+      toggleStockSort,
+      toggleSalesSort,
+      applyCurrentSort,
+      clearSort,
       // 登录状态相关
       isLoggedIn,
       userInfo
@@ -593,6 +714,17 @@ export default {
   background-color: #fff;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   padding: 0 20px;
+}
+
+.sort-header-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-header-inline .el-button {
+  padding: 4px 8px;
+  font-size: 12px;
 }
 
 .header-content {
