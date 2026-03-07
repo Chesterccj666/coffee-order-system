@@ -17,79 +17,128 @@
       <el-main class="main-content">
         <h2 class="page-title">待处理订单</h2>
         
-        <!-- 订单过滤器 -->
-        <div class="filter-section">
-          <el-select v-model="filterStatus" placeholder="选择订单状态" @change="loadOrders" class="filter-select">
-            <el-option label="全部" value=""></el-option>
-            <el-option label="待接单" :value="1"></el-option>
-            <el-option label="制作中" :value="2"></el-option>
-            <el-option label="已完成" :value="3"></el-option>
-            <el-option label="已取消" :value="4"></el-option>
-          </el-select>
-        </div>
-
-        <!-- 订单列表 -->
-        <div class="orders-list">
-          <el-card 
-            v-for="order in orders" 
-            :key="order.id" 
-            class="order-card"
-          >
-            <div class="order-header">
-              <div class="order-info">
-                <p><strong>订单号：</strong>{{ order.orderNo }}</p>
-                <p><strong>下单时间：</strong>{{ formatDate(order.orderTime) }}</p>
-                <p><strong>取餐码：</strong>{{ order.takeCode }}</p>
-                <p><strong>订单状态：</strong>
-                  <el-tag 
-                    :type="getStatusType(order.status)" 
-                    size="small"
-                  >
-                    {{ getStatusText(order.status) }}
-                  </el-tag>
-                </p>
-                <p><strong>总金额：</strong>¥{{ order.totalAmount }}</p>
-                <p><strong>顾客备注：</strong>{{ order.remark || '无' }}</p>
-              </div>
-              <div class="order-actions">
-                <el-button 
-                  v-if="order.status === 1" 
-                  type="primary" 
-                  @click="acceptOrder(order.id)"
-                >
-                  接单
-                </el-button>
-                <el-button 
-                  v-if="order.status === 2" 
-                  type="success" 
-                  @click="completeOrder(order.id)"
-                >
-                  出餐
-                </el-button>
-              </div>
-            </div>
-            
-            <!-- 订单详情 -->
-            <div class="order-details">
-              <h4>订单详情：</h4>
-              <div v-for="item in order.items" :key="item.id" class="order-item">
-                <div class="item-info">
-                  <img :src="item.coffeeImage" class="item-image" alt="咖啡图片" />
-                  <div class="item-text">
-                    <p><strong>{{ item.coffeeName }}</strong></p>
-                    <p>数量：{{ item.quantity }}</p>
-                    <p>单价：¥{{ item.price }}</p>
-                    <p>小计：¥{{ item.totalPrice }}</p>
-                    <p>甜度：{{ getSweetText(item.sweet) }}</p>
-                    <p>温度：{{ getTemperatureText(item.temperature) }}</p>
+        <!-- 左右两栏布局 -->
+        <div class="orders-container">
+          <!-- 左侧：待接单订单 -->
+          <div class="pending-orders-column">
+            <h3>待接单</h3>
+            <div class="orders-list">
+              <el-card 
+                v-for="order in pendingOrders" 
+                :key="order.id" 
+                class="order-card"
+              >
+                <div class="order-header">
+                  <div class="order-info">
+                    <p><strong>订单号：</strong>{{ order.orderNo }}</p>
+                    <p><strong>下单时间：</strong>{{ formatDate(order.orderTime) }}</p>
+                    <p><strong>取餐码：</strong>{{ order.takeCode }}</p>
+                    <p><strong>订单状态：</strong>
+                      <el-tag 
+                        :type="getStatusType(order.status)" 
+                        size="small"
+                      >
+                        {{ getStatusText(order.status) }}
+                      </el-tag>
+                    </p>
+                    <p><strong>总金额：</strong>¥{{ order.totalAmount }}</p>
+                    <p><strong>顾客备注：</strong>{{ order.remark || '无' }}</p>
+                  </div>
+                  <div class="order-actions">
+                    <el-button 
+                      v-if="order.status === 1" 
+                      type="primary" 
+                      @click="acceptOrder(order.id)"
+                    >
+                      接单
+                    </el-button>
                   </div>
                 </div>
+                
+                <!-- 订单详情 -->
+                <div class="order-details">
+                  <h4>订单详情：</h4>
+                  <div v-for="item in order.items" :key="item.id" class="order-item">
+                    <div class="item-info">
+                      <img :src="item.coffeeImage" class="item-image" alt="咖啡图片" />
+                      <div class="item-text">
+                        <p><strong>{{ item.coffeeName }}</strong></p>
+                        <p>数量：{{ item.quantity }}</p>
+                        <p>单价：¥{{ item.price }}</p>
+                        <p>小计：¥{{ item.totalPrice }}</p>
+                        <p>甜度：{{ getSweetText(item.sweet) }}</p>
+                        <p>温度：{{ getTemperatureText(item.temperature) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </el-card>
+              
+              <div v-if="pendingOrders.length === 0" class="empty-orders">
+                <p>暂无待接单订单</p>
               </div>
             </div>
-          </el-card>
+          </div>
           
-          <div v-if="orders.length === 0" class="empty-orders">
-            <p>暂无订单</p>
+          <!-- 右侧：制作中订单 -->
+          <div class="processing-orders-column">
+            <h3>制作中</h3>
+            <div class="orders-list">
+              <el-card 
+                v-for="order in processingOrders" 
+                :key="order.id" 
+                class="order-card"
+              >
+                <div class="order-header">
+                  <div class="order-info">
+                    <p><strong>订单号：</strong>{{ order.orderNo }}</p>
+                    <p><strong>下单时间：</strong>{{ formatDate(order.orderTime) }}</p>
+                    <p><strong>取餐码：</strong>{{ order.takeCode }}</p>
+                    <p><strong>订单状态：</strong>
+                      <el-tag 
+                        :type="getStatusType(order.status)" 
+                        size="small"
+                      >
+                        {{ getStatusText(order.status) }}
+                      </el-tag>
+                    </p>
+                    <p><strong>总金额：</strong>¥{{ order.totalAmount }}</p>
+                    <p><strong>顾客备注：</strong>{{ order.remark || '无' }}</p>
+                  </div>
+                  <div class="order-actions">
+                    <el-button 
+                      v-if="order.status === 2" 
+                      type="success" 
+                      @click="completeOrder(order.id)"
+                    >
+                      出餐
+                    </el-button>
+                  </div>
+                </div>
+                
+                <!-- 订单详情 -->
+                <div class="order-details">
+                  <h4>订单详情：</h4>
+                  <div v-for="item in order.items" :key="item.id" class="order-item">
+                    <div class="item-info">
+                      <img :src="item.coffeeImage" class="item-image" alt="咖啡图片" />
+                      <div class="item-text">
+                        <p><strong>{{ item.coffeeName }}</strong></p>
+                        <p>数量：{{ item.quantity }}</p>
+                        <p>单价：¥{{ item.price }}</p>
+                        <p>小计：¥{{ item.totalPrice }}</p>
+                        <p>甜度：{{ getSweetText(item.sweet) }}</p>
+                        <p>温度：{{ getTemperatureText(item.temperature) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </el-card>
+              
+              <div v-if="processingOrders.length === 0" class="empty-orders">
+                <p>暂无制作中订单</p>
+              </div>
+            </div>
           </div>
         </div>
       </el-main>
@@ -112,8 +161,8 @@ export default {
   name: 'StaffView',
   setup() {
     const router = useRouter()
-    const orders = ref([])
-    const filterStatus = ref('')
+    const pendingOrders = ref([]) // 待接单订单
+    const processingOrders = ref([]) // 制作中订单
     const isLoggedIn = ref(false)
     const userInfo = ref({})
 
@@ -144,41 +193,46 @@ export default {
 
     const loadOrders = async () => {
       try {
-        let ordersData = []
-        if (filterStatus.value) {
-          // 如果有状态过滤，只获取特定状态的订单
-          const response = await getOrdersByStatus(filterStatus.value)
-          if (response.code === 200) {
-            ordersData = response.data || []
-          } else {
-            ElMessage.error(response.message)
-            return
-          }
-        } else {
-          // 如果没有过滤状态，获取待接单和制作中的订单（店员通常关注这些）
-          const pendingResponse = await getOrdersByStatus(1)
-          const processingResponse = await getOrdersByStatus(2)
-          
-          const pendingOrders = pendingResponse.code === 200 ? pendingResponse.data || [] : []
-          const processingOrders = processingResponse.code === 200 ? processingResponse.data || [] : []
-          
-          ordersData = [...pendingOrders, ...processingOrders]
-        }
+        // 获取待接单订单
+        const pendingResponse = await getOrdersByStatus(1)
+        // 获取制作中订单
+        const processingResponse = await getOrdersByStatus(2)
         
-        orders.value = ordersData
+        const pendingOrdersData = pendingResponse.code === 200 ? pendingResponse.data || [] : []
+        const processingOrdersData = processingResponse.code === 200 ? processingResponse.data || [] : []
         
         // 获取每个订单的详细信息
-        for (let i = 0; i < orders.value.length; i++) {
+        for (let i = 0; i < pendingOrdersData.length; i++) {
           try {
-            const orderDetailResponse = await getOrderDetail(orders.value[i].id)
+            const orderDetailResponse = await getOrderDetail(pendingOrdersData[i].id)
             if (orderDetailResponse.code === 200) {
-              orders.value[i].items = orderDetailResponse.data.items || []
+              pendingOrdersData[i].items = orderDetailResponse.data.items || []
             }
           } catch (err) {
-            console.warn(`获取订单 ${orders.value[i].id} 详情失败:`, err)
-            orders.value[i].items = []
+            console.warn(`获取订单 ${pendingOrdersData[i].id} 详情失败:`, err)
+            pendingOrdersData[i].items = []
           }
         }
+        
+        for (let i = 0; i < processingOrdersData.length; i++) {
+          try {
+            const orderDetailResponse = await getOrderDetail(processingOrdersData[i].id)
+            if (orderDetailResponse.code === 200) {
+              processingOrdersData[i].items = orderDetailResponse.data.items || []
+            }
+          } catch (err) {
+            console.warn(`获取订单 ${processingOrdersData[i].id} 详情失败:`, err)
+            processingOrdersData[i].items = []
+          }
+        }
+        
+        // 按时间顺序排序（旧订单在前，新订单在后）
+        pendingOrdersData.sort((a, b) => new Date(a.orderTime) - new Date(b.orderTime))
+        processingOrdersData.sort((a, b) => new Date(a.orderTime) - new Date(b.orderTime))
+        
+        // 更新响应式数据
+        pendingOrders.value = pendingOrdersData
+        processingOrders.value = processingOrdersData
       } catch (error) {
         console.error('加载订单失败:', error)
         ElMessage.error('加载订单失败')
@@ -197,7 +251,16 @@ export default {
 
         if (response.code === 200) {
           ElMessage.success('接单成功')
-          loadOrders() // 刷新订单列表
+          
+          // 从待接单列表中移除该订单
+          const pendingIndex = pendingOrders.value.findIndex(order => order.id === orderId)
+          if (pendingIndex !== -1) {
+            const acceptedOrder = pendingOrders.value.splice(pendingIndex, 1)[0]
+            // 更新订单状态为制作中
+            acceptedOrder.status = 2
+            // 添加到制作中列表
+            processingOrders.value.push(acceptedOrder)
+          }
         } else {
           ElMessage.error(response.message)
         }
@@ -221,7 +284,12 @@ export default {
 
         if (response.code === 200) {
           ElMessage.success('出餐成功')
-          loadOrders() // 刷新订单列表
+          
+          // 从制作中列表中移除该订单
+          const processingIndex = processingOrders.value.findIndex(order => order.id === orderId)
+          if (processingIndex !== -1) {
+            processingOrders.value.splice(processingIndex, 1)
+          }
         } else {
           ElMessage.error(response.message)
         }
@@ -279,8 +347,8 @@ export default {
     }
 
     return {
-      orders,
-      filterStatus,
+      pendingOrders,
+      processingOrders,
       userInfo,
       loadOrders,
       acceptOrder,
@@ -337,18 +405,32 @@ export default {
   color: #333;
 }
 
-.filter-section {
-  margin-bottom: 20px;
-  text-align: center;
+.orders-container {
+  display: flex;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.filter-select {
-  width: 200px;
+.pending-orders-column, .processing-orders-column {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.pending-orders-column h3, .processing-orders-column h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  color: #333;
 }
 
 .orders-list {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 
 .order-card {
