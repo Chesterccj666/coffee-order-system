@@ -2,6 +2,7 @@ package com.lihao.CoffeeOrderSystem.service;
 
 import com.lihao.CoffeeOrderSystem.entity.Coffee;
 import java.util.List;
+import java.util.Map;
 
 public interface CoffeeService {
     /**
@@ -62,7 +63,12 @@ public interface CoffeeService {
     /**
      * 获取按类别统计的销售数据
      */
-    List<Object> getCategorySalesStats();
+    List<Map<String, Object>> getCategorySalesStats();
+    
+    /**
+     * 获取所有不同的咖啡类别
+     */
+    List<String> getAllCategories();
     
     /**
      * 获取总销售额

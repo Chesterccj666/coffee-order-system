@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/coffee")
@@ -300,8 +301,21 @@ public class CoffeeController {
     @GetMapping("/admin/sales-stats")
     public Object getCategorySalesStats() {
         try {
-            List<Object> stats = coffeeService.getCategorySalesStats();
+            List<Map<String, Object>> stats = coffeeService.getCategorySalesStats();
             return new ResponseResult<>(200, "获取成功", stats);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 管理员功能：获取所有不同的咖啡类别
+     */
+    @GetMapping("/admin/categories")
+    public Object getAllCategories() {
+        try {
+            List<String> categories = coffeeService.getAllCategories();
+            return new ResponseResult<>(200, "获取成功", categories);
         } catch (Exception e) {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }

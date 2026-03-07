@@ -3,6 +3,7 @@ package com.lihao.CoffeeOrderSystem.mapper;
 import com.lihao.CoffeeOrderSystem.entity.Coffee;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface CoffeeMapper {
@@ -17,7 +18,7 @@ public interface CoffeeMapper {
      * 【咖啡详情页】根据id查询咖啡
      */
     @Select("SELECT * FROM coffee WHERE id = #{id}")
-    Coffee selectById(Integer id);
+        Coffee selectById(Integer id);
 
     /**
      * 【分类筛选】根据分类查询咖啡
@@ -102,8 +103,14 @@ public interface CoffeeMapper {
     /**
      * 【管理员功能】按类别统计销售数据
      */
-    @Select("SELECT category, SUM(sales) as total_sales, COUNT(*) as count FROM coffee GROUP BY category")
-    List<Object> selectCategorySalesStats();
+    @Select("SELECT c.category, SUM(oi.total_price) as totalSales FROM order_item oi JOIN coffee c ON oi.coffee_id = c.id GROUP BY c.category")
+    List<Map<String, Object>> selectCategorySalesStats();
+    
+    /**
+     * 【管理员功能】查询所有不同的咖啡类别
+     */
+    @Select("SELECT DISTINCT category FROM coffee WHERE category IS NOT NULL AND category != ''")
+    List<String> selectAllCategories();
     
     /**
      * 【管理员功能】查询总销售额

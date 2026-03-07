@@ -47,6 +47,11 @@ export const getTopSellingCoffee = (limit) => {
   return request.get(`/api/coffee/admin/top-selling/${limit}`)
 }
 
+// 获取所有咖啡类别
+export const getAllCoffeeCategories = () => {
+  return request.get('/api/coffee/admin/categories')
+}
+
 // 获取按类别统计的销售数据
 export const getCategorySalesStats = () => {
   return request.get('/api/coffee/admin/sales-stats')

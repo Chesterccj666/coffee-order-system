@@ -6,6 +6,7 @@ import com.lihao.CoffeeOrderSystem.mapper.CoffeeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CoffeeServiceImpl implements CoffeeService {
@@ -99,8 +100,13 @@ public class CoffeeServiceImpl implements CoffeeService {
     }
     
     @Override
-    public List<Object> getCategorySalesStats() {
+    public List<Map<String, Object>> getCategorySalesStats() {
         return coffeeMapper.selectCategorySalesStats();
+    }
+    
+    @Override
+    public List<String> getAllCategories() {
+        return coffeeMapper.selectAllCategories();
     }
     
     @Override

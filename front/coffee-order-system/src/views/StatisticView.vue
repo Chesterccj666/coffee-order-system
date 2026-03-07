@@ -105,7 +105,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { getTotalSalesAmount, getCategorySalesStats, getTopSellingCoffee } from '@/api/admin'
+import { getTotalSalesAmount, getCategorySalesStats, getTopSellingCoffee, getAllCoffeeCategories } from '@/api/admin'
 
 export default {
   name: 'StatisticsView',
@@ -161,11 +161,16 @@ export default {
         const categoryStatsResponse = await getCategorySalesStats()
         if (categoryStatsResponse.code === 200) {
           const stats = categoryStatsResponse.data || []
-          totalCategories.value = stats.length
           
-          // 准备图表数据
-          const categoryNames = stats.map(item => item.category || '未知类别')
-          const categorySales = stats.map(item => item.total_sales || 0)
+          // 准备图表数据 - 使用实际类别名称和销售额
+          const categoryNames = stats.map(item => {
+            return item.category || '未知类别'
+          })
+          const categorySales = stats.map(item => {
+            return item.totalSales || 0
+          })
+          
+          totalCategories.value = categoryNames.length
           
           // 渲染类别销售额图表
           await nextTick()
