@@ -17,12 +17,25 @@
       <el-main class="main-content">
         <h2 class="page-title">全部订单</h2>
         
-
+        <!-- 日期筛选 -->
+        <div class="date-filter">
+          <span>选择日期：</span>
+          <el-date-picker
+            v-model="selectedDate"
+            type="date"
+            placeholder="选择日期"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            @change="filterOrdersByDate"
+          />
+          <el-button @click="clearDateFilter" style="margin-left: 10px;">清除筛选</el-button>
+        </div>
+        
 
         <!-- 订单列表 -->
         <div class="orders-list">
           <el-card 
-            v-for="order in orders" 
+            v-for="order in filteredOrders" 
             :key="order.id" 
             class="order-card"
           >
@@ -75,7 +88,10 @@
             </div>
           </el-card>
           
-          <div v-if="orders.length === 0" class="empty-orders">
+          <div v-if="filteredOrders.length === 0 && selectedDate" class="empty-orders">
+            <p>{{ selectedDate }} 暂无订单</p>
+          </div>
+          <div v-else-if="filteredOrders.length === 0 && !selectedDate" class="empty-orders">
             <p>暂无订单</p>
           </div>
         </div>
@@ -100,8 +116,10 @@ export default {
   setup() {
     const router = useRouter()
     const orders = ref([])
+    const filteredOrders = ref([])
     const isLoggedIn = ref(false)
     const userInfo = ref({})
+    const selectedDate = ref('')
 
     onMounted(() => {
       checkLoginStatus()
@@ -153,11 +171,35 @@ export default {
               orders.value[i].items = []
             }
           }
+          
+          // 初始化过滤后的订单列表
+          filteredOrders.value = [...orders.value]
         }
       } catch (error) {
         console.error('加载订单失败:', error)
         ElMessage.error('加载订单失败')
       }
+    }
+    
+    const filterOrdersByDate = (date) => {
+      if (!date) {
+        filteredOrders.value = [...orders.value]
+        return
+      }
+      
+      // 将选择的日期转换为年月日格式
+      const selectedDay = new Date(date).toISOString().split('T')[0]
+      
+      filteredOrders.value = orders.value.filter(order => {
+        // 提取订单日期的年月日部分
+        const orderDate = new Date(order.orderTime).toISOString().split('T')[0]
+        return orderDate === selectedDay
+      })
+    }
+    
+    const clearDateFilter = () => {
+      selectedDate.value = ''
+      filteredOrders.value = [...orders.value]
     }
 
 
@@ -209,8 +251,12 @@ export default {
 
     return {
       orders,
+      filteredOrders,
+      selectedDate,
       userInfo,
       loadOrders,
+      filterOrdersByDate,
+      clearDateFilter,
       getStatusText,
       getStatusType,
       getSweetText,
@@ -261,6 +307,16 @@ export default {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f0f2f5;
+  border-radius: 4px;
 }
 
 .orders-list {
@@ -364,9 +420,21 @@ export default {
 }
 
 .empty-orders {
+  grid-column: 1 / -1; /* 跨越所有网格列 */
   text-align: center;
   padding: 40px;
   color: #999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px; /* 确保有足够的空间进行居中 */
+}
+
+.empty-orders p {
+  margin: 0;
+  font-size: 50px;
+  font-weight: 500;
 }
 
 .footer {
