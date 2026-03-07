@@ -549,8 +549,13 @@ export default {
 
     const getImageUrl = (url) => {
       if (!url) return url;
+      // 确保路径以斜杠开头，处理相对路径
+      let imageUrl = url;
+      if (!imageUrl.startsWith('/')) {
+        imageUrl = '/' + imageUrl;
+      }
       // 添加时间戳参数以防止浏览器缓存
-      return url + '?t=' + Date.now();
+      return imageUrl + '?t=' + Date.now();
     }
 
     return {
