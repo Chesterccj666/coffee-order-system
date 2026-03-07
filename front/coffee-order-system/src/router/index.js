@@ -4,7 +4,7 @@ const routes = [
   {
     path: '/',
     name: 'Index',
-    component: () => import('@/views/IndexView.vue')
+    component: () => import('@/views/HomeView.vue')
   },
   {
     path: '/login',
@@ -39,12 +39,22 @@ const routes = [
   {
     path: '/staff',
     name: 'Staff',
-    component: () => import('@/views/StaffView.vue')
+    component: () => import('@/views/PendingOrdersView.vue')
   },
   {
     path: '/staff/all-orders',
-    name: 'StaffAllOrders',
-    component: () => import('@/views/StaffAllOrdersView.vue')
+    name: 'AllOrders',
+    component: () => import('@/views/AllOrdersView.vue')
+  },
+  {
+    path: '/admin/coffee',
+    name: 'CoffeeManagement',
+    component: () => import('@/views/CoffeeManagementView.vue')
+  },
+  {
+    path: '/admin/statistics',
+    name: 'Statistics',
+    component: () => import('@/views/StatisticView.vue')
   }
 ]
 

@@ -6,13 +6,11 @@
         <div class="header-content">
           <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
           <div class="nav-links">
-            <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
             <!-- 顾客功能 -->
+            <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
             <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/cart')">购物车</el-button>
             <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/orders')">我的订单</el-button>
-            <!-- 店员功能 -->
-            <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff')">待处理订单</el-button>
-            <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
+            
             <el-button v-if="!isLoggedIn" type="text" @click="$router.push('/login')">登录</el-button>
             <el-button v-else type="text" @click="$router.push('/profile')">{{ userInfo.username }}</el-button>
           </div>

@@ -113,7 +113,7 @@ import { getAllOrdersByStatus, getOrdersByStatus, updateOrderStatus, getOrderDet
 import { useRouter } from 'vue-router'
 
 export default {
-  name: 'StaffAllOrdersView',
+  name: 'AllOrdersView',
   setup() {
     const router = useRouter()
     const orders = ref([])

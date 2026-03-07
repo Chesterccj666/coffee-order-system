@@ -6,6 +6,7 @@
         <div class="header-content">
           <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 店员版</h1>
           <div class="nav-links">
+            <!-- 店员功能 -->
             <el-button type="text" @click="$router.push('/staff')">待处理订单</el-button>
             <el-button type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
             <el-button type="text" @click="$router.push('/profile')">{{ userInfo.username }}</el-button>
@@ -158,7 +159,7 @@ import { getUserOrders, getAllOrdersByStatus, getOrdersByStatus, updateOrderStat
 import { useRouter } from 'vue-router'
 
 export default {
-  name: 'StaffView',
+  name: 'PendingOrdersView',
   setup() {
     const router = useRouter()
     const pendingOrders = ref([]) // 待接单订单

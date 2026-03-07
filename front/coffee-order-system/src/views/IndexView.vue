@@ -1,10 +1,13 @@
 <template>
   <div class="index-container">
-    <!-- 顾客角色 - 显示HomeView内容 -->
-    <HomeView v-if="!isLoggedIn || userInfo.role === 1" />
+    <!-- 顾客角色 - 显示顾客内容 -->
+    <HomeView v-if="isLoggedIn && userInfo.role === 1" />
     
-    <!-- 店员角色 - 显示店员首页（统计信息） -->
+    <!-- 店员角色 - 显示店员首页 -->
     <HomeView v-if="isLoggedIn && userInfo.role === 2" />
+
+    <!-- 管理员角色 - 显示管理员首页 -->
+    <HomeView v-if="isLoggedIn && userInfo.role === 3" />
   </div>
 </template>
 

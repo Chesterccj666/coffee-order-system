@@ -13,6 +13,10 @@
               <!-- 店员功能 -->
               <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff')">待处理订单</el-button>
               <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
+              <!-- 管理员功能 -->
+              <el-button v-if="isLoggedIn && userInfo.role === 3" type="text" @click="$router.push('/admin/coffee')">咖啡管理</el-button>
+              <el-button v-if="isLoggedIn && userInfo.role === 3" type="text" @click="$router.push('/admin/statistics')">数据统计</el-button>
+              <!-- 公有功能 -->
               <el-button v-if="!isLoggedIn" type="text" @click="$router.push('/login')">登录</el-button>
               <el-button v-else type="text" @click="$router.push('/profile')">{{ userInfo.username }}</el-button>
             </div>

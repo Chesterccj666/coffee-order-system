@@ -32,4 +32,79 @@ public class CoffeeServiceImpl implements CoffeeService {
     public List<Coffee> getRecommendedCoffee() {
         return coffeeMapper.selectRecommended();
     }
+    
+    @Override
+    public List<Coffee> getAllCoffeeForAdmin() {
+        return coffeeMapper.selectAllForAdmin();
+    }
+    
+    @Override
+    public boolean addCoffee(Coffee coffee) {
+        try {
+            coffeeMapper.insert(coffee);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean updateCoffee(Coffee coffee) {
+        try {
+            coffeeMapper.updateById(coffee);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean deleteCoffee(Integer id) {
+        try {
+            coffeeMapper.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean setRecommend(Integer id, String recommend) {
+        try {
+            coffeeMapper.updateRecommend(id, recommend);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean setStatus(Integer id, String status) {
+        try {
+            coffeeMapper.updateStatus(id, status);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public List<Coffee> getTopSellingCoffee(int limit) {
+        return coffeeMapper.selectTopSelling(limit);
+    }
+    
+    @Override
+    public List<Object> getCategorySalesStats() {
+        return coffeeMapper.selectCategorySalesStats();
+    }
+    
+    @Override
+    public Double getTotalSalesAmount() {
+        return coffeeMapper.selectTotalSalesAmount();
+    }
 }

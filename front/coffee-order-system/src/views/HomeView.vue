@@ -13,6 +13,10 @@
             <!-- 店员功能 -->
             <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff')">待处理订单</el-button>
             <el-button v-if="isLoggedIn && userInfo.role === 2" type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
+            <!-- 管理员功能 -->
+            <el-button v-if="isLoggedIn && userInfo.role === 3" type="text" @click="$router.push('/admin/coffee')">咖啡管理</el-button>
+            <el-button v-if="isLoggedIn && userInfo.role === 3" type="text" @click="$router.push('/admin/statistics')">数据统计</el-button>
+            <!-- 公有功能 -->
             <el-button v-if="!isLoggedIn" type="text" @click="$router.push('/login')">登录</el-button>
             <el-button v-else type="text" @click="$router.push('/profile')">{{ userInfo.username }}</el-button>
           </div>
@@ -33,6 +37,16 @@
           <div v-if="isLoggedIn && userInfo.role === 2">
             <h2>店员工作台</h2>
             <p>管理订单，服务顾客，提升效率</p>
+          </div>
+          
+          <!-- 管理员欢迎内容 -->
+          <div v-if="isLoggedIn && userInfo.role === 3">
+            <h2>管理员面板</h2>
+            <p>管理咖啡商品，查看销售数据，优化运营策略</p>
+            <div class="admin-actions">
+              <el-button type="primary" @click="$router.push('/admin/coffee')">咖啡管理</el-button>
+              <el-button type="success" @click="$router.push('/admin/statistics')">数据统计</el-button>
+            </div>
           </div>
         </div>
 
@@ -82,6 +96,34 @@
           </div>
         </div>
 
+        <!-- 管理员热销咖啡展示 -->
+        <div v-if="isLoggedIn && userInfo.role === 3" class="top-selling-section">
+          <h3>热销咖啡 Top 5</h3>
+          <div class="top-selling-grid">
+            <el-card 
+              v-for="coffee in topSellingCoffees" 
+              :key="coffee.id" 
+              class="top-selling-item"
+            >
+              <div class="coffee-image-container">
+                <img :src="coffee.coffeeImage" class="top-selling-image" alt="咖啡图片" />
+              </div>
+              <div class="coffee-info">
+                <h4>{{ coffee.name }}</h4>
+                <p class="price">¥{{ coffee.price }}</p>
+                <p class="sales">销量: {{ coffee.sales }} 杯</p>
+                <el-button 
+                  :type="coffee.recommend === '1' ? 'info' : 'warning'"
+                  :disabled="coffee.recommend === '1'"
+                  @click="toggleRecommend(coffee)"
+                >
+                  {{ coffee.recommend === '1' ? '已推荐' : '推荐' }}
+                </el-button>
+              </div>
+            </el-card>
+          </div>
+        </div>
+
         <!-- 顾客推荐咖啡展示 -->
         <div v-if="!isLoggedIn || userInfo.role === 1" class="recommended-section">
           <h3>推荐咖啡</h3>
@@ -127,6 +169,7 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getRecommendedCoffee } from '@/api/coffee'
 import { getOrdersByStatus, getAllOrdersByStatus } from '@/api/order'
+import { getTopSellingCoffee, setRecommend } from '@/api/admin'
 
 export default {
   name: 'HomeView',
@@ -142,9 +185,16 @@ export default {
       return recommendedCoffees.value.slice(0, 8)
     })
 
+    // 管理员热销咖啡数据
+    const topSellingCoffees = ref([])
+
     onMounted(() => {
       loadRecommendedCoffees()
       checkLoginStatus()
+      // 如果是管理员角色，加载热销咖啡数据
+      if (isLoggedIn.value && userInfo.value.role === 3) {
+        loadTopSellingCoffees()
+      }
     })
 
     const loadRecommendedCoffees = async () => {
@@ -162,6 +212,40 @@ export default {
       } catch (error) {
         console.error('加载推荐咖啡失败:', error)
         ElMessage.error('加载推荐咖啡失败')
+      }
+    }
+
+    // 加载热销咖啡数据
+    const loadTopSellingCoffees = async () => {
+      try {
+        const response = await getTopSellingCoffee(5)
+        if (response.code === 200) {
+          topSellingCoffees.value = response.data || []
+        } else {
+          ElMessage.error(response.message)
+        }
+      } catch (error) {
+        console.error('加载热销咖啡失败:', error)
+        ElMessage.error('加载热销咖啡失败')
+      }
+    }
+
+    // 切换推荐状态
+    const toggleRecommend = async (coffee) => {
+      try {
+        const response = await setRecommend(coffee.id, '1')
+        if (response.code === 200) {
+          ElMessage.success('推荐成功')
+          // 更新本地数据
+          coffee.recommend = '1'
+          // 重新加载热销咖啡列表
+          loadTopSellingCoffees()
+        } else {
+          ElMessage.error(response.message)
+        }
+      } catch (error) {
+        console.error('设置推荐失败:', error)
+        ElMessage.error('设置推荐失败')
       }
     }
 
@@ -231,6 +315,10 @@ export default {
       if (storedUser) {
         userInfo.value = JSON.parse(storedUser)
         isLoggedIn.value = true
+        // 如果是管理员角色，加载热销咖啡数据
+        if (userInfo.value.role === 3) {
+          loadTopSellingCoffees()
+        }
       }
     }
 
@@ -249,6 +337,9 @@ export default {
       currentCoffee,
       carouselRef,
       handleCarouselChange,
+      // 管理员热销咖啡
+      topSellingCoffees,
+      toggleRecommend,
       // 店员订单统计
       pendingOrdersCount,
       processingOrdersCount,
@@ -284,6 +375,60 @@ export default {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.admin-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+}
+
+.top-selling-section {
+  margin-top: 40px;
+}
+
+.top-selling-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.top-selling-item {
+  text-align: center;
+  padding: 15px;
+}
+
+.coffee-image-container {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.top-selling-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coffee-info h4 {
+  margin: 10px 0 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.price {
+  font-weight: bold;
+  color: #e74c3c;
+  margin: 5px 0;
+}
+
+.sales {
+  color: #666;
+  font-size: 14px;
+  margin: 5px 0;
 }
 
 .header-content {
