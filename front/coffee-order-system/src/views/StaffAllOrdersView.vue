@@ -28,7 +28,8 @@
             value-format="YYYY-MM-DD"
             @change="filterOrdersByDate"
           />
-          <el-button @click="clearDateFilter" style="margin-left: 10px;">清除筛选</el-button>
+          <el-button @click="showTodayOrders" style="margin-left: 10px;">今天</el-button>
+          <el-button @click="clearDateFilter" style="margin-left: 10px;" title="展示历史全部订单">清除筛选</el-button>
         </div>
         
 
@@ -125,6 +126,8 @@ export default {
       checkLoginStatus()
       if (isLoggedIn.value) {
         loadOrders()
+        // 页面加载时默认显示今天的订单
+        showTodayOrders()
       }
     })
 
@@ -197,6 +200,18 @@ export default {
       })
     }
     
+    const showTodayOrders = () => {
+      // 获取今天的日期并格式化为 YYYY-MM-DD
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      const todayStr = `${year}-${month}-${day}`
+      
+      selectedDate.value = todayStr
+      filterOrdersByDate(todayStr)
+    }
+    
     const clearDateFilter = () => {
       selectedDate.value = ''
       filteredOrders.value = [...orders.value]
@@ -256,6 +271,7 @@ export default {
       userInfo,
       loadOrders,
       filterOrdersByDate,
+      showTodayOrders,
       clearDateFilter,
       getStatusText,
       getStatusType,
@@ -317,6 +333,43 @@ export default {
   padding: 15px;
   background-color: #f0f2f5;
   border-radius: 4px;
+}
+
+/* 为日期筛选按钮添加样式 */
+.date-filter .el-button {
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  margin: 0 5px;
+}
+
+.date-filter .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.date-filter > .el-button:nth-of-type(1) { /* "今天"按钮 */
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+}
+
+.date-filter > .el-button:nth-of-type(1):hover {
+  background-color: #bae7ff;
+  color: #096dd9;
+}
+
+.date-filter > .el-button:nth-of-type(2) { /* "清除筛选"按钮 */
+  background-color: #fff2e8;
+  color: #fa8c16;
+  border: 1px solid #ffcca7;
+}
+
+.date-filter > .el-button:nth-of-type(2):hover {
+  background-color: #ffe7ba;
+  color: #d46b08;
 }
 
 .orders-list {
