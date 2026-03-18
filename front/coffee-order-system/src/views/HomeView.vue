@@ -273,14 +273,16 @@ export default {
           const completedResponse = await getOrdersByStatus(3)
           if (completedResponse.code === 200) {
             const completedOrders = completedResponse.data || []
-            completedOrdersCount.value = completedOrders.length
             
             // 计算今日销售额（已完成订单）
             const today = new Date()
             today.setHours(0, 0, 0, 0)
             
-            todaySales.value = completedOrders
-              .filter(order => new Date(order.orderTime) >= today)
+            // 过滤出今天的已完成订单
+            const todayCompletedOrders = completedOrders.filter(order => new Date(order.orderTime) >= today)
+            completedOrdersCount.value = todayCompletedOrders.length
+            
+            todaySales.value = todayCompletedOrders
               .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
               
             // 计算历史总销售额（所有已完成订单）
