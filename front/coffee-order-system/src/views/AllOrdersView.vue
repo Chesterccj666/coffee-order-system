@@ -190,19 +190,31 @@ export default {
         return
       }
       
-      // 将选择的日期转换为年月日格式
-      const selectedDay = new Date(date).toISOString().split('T')[0]
+      // 将选择的日期转换为年月日格式（确保使用本地时间而非UTC）
+      const selectedDateObj = new Date(date)
+      // 设置时间为当天的开始（00:00:00），避免时区偏移问题
+      selectedDateObj.setHours(0, 0, 0, 0)
+      const selectedDay = selectedDateObj.getFullYear() + '-' + 
+                         String(selectedDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(selectedDateObj.getDate()).padStart(2, '0')
       
       filteredOrders.value = orders.value.filter(order => {
-        // 提取订单日期的年月日部分
-        const orderDate = new Date(order.orderTime).toISOString().split('T')[0]
+        // 提取订单日期的年月日部分（使用本地时间）
+        const orderDateObj = new Date(order.orderTime)
+        // 设置时间为当天的开始（00:00:00），避免时区偏移问题
+        orderDateObj.setHours(0, 0, 0, 0)
+        const orderDate = orderDateObj.getFullYear() + '-' + 
+                         String(orderDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(orderDateObj.getDate()).padStart(2, '0')
         return orderDate === selectedDay
       })
     }
     
     const showTodayOrders = () => {
-      // 获取今天的日期并格式化为 YYYY-MM-DD
+      // 获取今天的日期并格式化为 YYYY-MM-DD（确保使用本地时间）
       const today = new Date()
+      // 设置时间为当天的开始（00:00:00），避免时区偏移问题
+      today.setHours(0, 0, 0, 0)
       const year = today.getFullYear()
       const month = String(today.getMonth() + 1).padStart(2, '0')
       const day = String(today.getDate()).padStart(2, '0')
