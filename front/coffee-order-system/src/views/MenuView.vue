@@ -24,7 +24,8 @@
           <el-tab-pane label="全部" name="all"></el-tab-pane>
           <el-tab-pane label="美式" name="美式"></el-tab-pane>
           <el-tab-pane label="意式" name="意式"></el-tab-pane>
-          <el-tab-pane label="花式" name="花式"></el-tab-pane>
+          <el-tab-pane label="摩卡" name="摩卡"></el-tab-pane>
+          <el-tab-pane label="拿铁" name="拿铁"></el-tab-pane>
         </el-tabs>
 
         <!-- 咖啡列表 -->

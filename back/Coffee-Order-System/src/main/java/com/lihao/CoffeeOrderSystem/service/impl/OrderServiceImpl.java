@@ -65,13 +65,16 @@ public class OrderServiceImpl implements OrderService {
                 return false;
             }
 
-            // 构建订单详情
+            // 构建订单详情，从Coffee表中获取最新信息以确保图片路径是最新的
             List<OrderItem> orderItems = cartItems.stream().map(cart -> {
+                // 从Coffee表中获取最新的咖啡信息，确保图片路径是最新的
+                Coffee coffee = coffeeMapper.selectById(cart.getCoffeeId());
+                
                 OrderItem item = new OrderItem();
                 item.setOrderId(order.getId());
                 item.setCoffeeId(cart.getCoffeeId());
-                item.setCoffeeName(cart.getCoffeeName());
-                item.setCoffeeImage(cart.getCoffeeImage());
+                item.setCoffeeName(coffee.getName()); // 使用最新名称
+                item.setCoffeeImage(coffee.getCoffeeImage()); // 使用最新图片路径
                 item.setPrice(cart.getPrice());
                 item.setQuantity(cart.getQuantity());
                 item.setTotalPrice(cart.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity())));

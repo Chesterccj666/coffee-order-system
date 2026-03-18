@@ -117,4 +117,10 @@ public interface CoffeeMapper {
      */
     @Select("SELECT SUM(total_amount) FROM `order` WHERE status = 3")
     Double selectTotalSalesAmount();
+    
+    /**
+     * 【管理员功能】根据ID更新咖啡图片路径
+     */
+    @Update("UPDATE coffee SET coffee_image = #{coffeeImage} WHERE id = #{id}")
+    int updateImageById(@Param("id") Integer id, @Param("coffeeImage") String coffeeImage);
 }

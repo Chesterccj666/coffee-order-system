@@ -113,4 +113,15 @@ public class CoffeeServiceImpl implements CoffeeService {
     public Double getTotalSalesAmount() {
         return coffeeMapper.selectTotalSalesAmount();
     }
+    
+    @Override
+    public boolean updateCoffeeImage(Integer id, String coffeeImage) {
+        try {
+            coffeeMapper.updateImageById(id, coffeeImage);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

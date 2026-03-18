@@ -74,4 +74,9 @@ public interface CoffeeService {
      * 获取总销售额
      */
     Double getTotalSalesAmount();
+    
+    /**
+     * 更新咖啡图片路径
+     */
+    boolean updateCoffeeImage(Integer id, String coffeeImage);
 }
