@@ -126,11 +126,10 @@
 
         <!-- 顾客推荐咖啡展示 -->
         <div v-if="!isLoggedIn || userInfo.role === 1" class="recommended-section">
-          <h3>推荐咖啡</h3>
           <div class="coffee-display-container">
             <div class="coffee-carousel-section">
               <el-carousel 
-                height="200px"
+                height="325px"
                 :autoplay="true"
                 :interval="3000" 
                 indicator-position="outside"
@@ -504,7 +503,7 @@ export default {
   padding: 25px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  height: 100%;
+  height: 250px;
   display: flex;
   flex-direction: column;
 }
