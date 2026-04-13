@@ -17,23 +17,23 @@ export default defineConfig({
   },
   server: {
     // 允许局域网内的其他用户访问到开发服务器
-    host: '0.0.0.0',  // 允许外部访问
+    // host: '0.0.0.0',  // 允许外部访问
     port: 5173,       // 开发服务器端口
 
     proxy: {
       '/api': {
-        //target: 'http://localhost:8080',
-        target: 'http://10.120.193.194:8080',  // 局域网访问
+        target: 'http://localhost:8080',
+        //target: 'http://10.112.73.21:8080',  // 局域网访问
         changeOrigin: true,
       },
       '/static': {
-        //target: 'http://localhost:8080',
-        target: 'http://10.120.193.194:8080',  // 局域网访问
+        target: 'http://localhost:8080',
+        //target: 'http://10.112.73.21:8080',  // 局域网访问
         changeOrigin: true,
       },
       '/upload': {
-        //target: 'http://localhost:8080',
-        target: 'http://10.120.193.194:8080',  // 局域网访问
+        target: 'http://localhost:8080',
+        //target: 'http://10.112.73.21:8080',  // 局域网访问
         changeOrigin: true,
       }
     }

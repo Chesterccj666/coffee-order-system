@@ -108,7 +108,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getUserOrders, getOrdersByStatus, updateOrderStatus, getOrderDetail, cancelOrder as cancelOrderApi } from '@/api/order'
+import { getUserOrders, getUserOrdersByStatus, getOrdersByStatus, updateOrderStatus, getOrderDetail, cancelOrder as cancelOrderApi } from '@/api/order'
 
 export default {
   name: 'OrdersView',
@@ -160,8 +160,8 @@ export default {
 
         let response
         if (status) {
-          // 按状态获取订单
-          response = await getOrdersByStatus(status)
+          // 按状态获取当前用户的订单
+          response = await getUserOrdersByStatus(userInfo.value.id, status)
         } else {
           // 获取用户的所有订单
           response = await getUserOrders(userInfo.value.id)

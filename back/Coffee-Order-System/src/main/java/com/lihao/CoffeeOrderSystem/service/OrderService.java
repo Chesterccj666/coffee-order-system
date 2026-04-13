@@ -37,6 +37,11 @@ public interface OrderService {
     List<Order> getOrdersByStatus(Integer status);
     
     /**
+     * 根据用户ID和状态查询订单（顾客使用）
+     */
+    List<Order> getUserOrdersByStatus(Integer userId, Integer status);
+    
+    /**
      * 根据订单ID查询订单项
      */
     List<OrderItem> getOrderItemsByOrderId(Integer orderId);

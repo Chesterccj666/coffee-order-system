@@ -14,6 +14,11 @@ export const getUserOrders = (userId) => {
   return request.get(`/api/order/list/${userId}`)
 }
 
+// 根据用户ID和状态获取订单
+export const getUserOrdersByStatus = (userId, status) => {
+  return request.get(`/api/order/user/${userId}/status/${status}`)
+}
+
 // 获取订单详情
 export const getOrderById = (id) => {
   return request.get(`/api/order/${id}`)

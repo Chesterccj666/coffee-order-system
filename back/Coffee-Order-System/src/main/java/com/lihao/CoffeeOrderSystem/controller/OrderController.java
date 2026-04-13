@@ -163,6 +163,19 @@ public class OrderController {
     }
     
     /**
+     * 根据用户ID和状态获取订单列表（供顾客使用）
+     */
+    @GetMapping("/user/{userId}/status/{status}")
+    public Object getUserOrdersByStatus(@PathVariable Integer userId, @PathVariable Integer status) {
+        try {
+            List<Order> orders = orderService.getUserOrdersByStatus(userId, status);
+            return new ResponseResult<>(200, "获取成功", orders);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
+    
+    /**
      * 取消订单
      */
     @PutMapping("/cancel/{orderId}")

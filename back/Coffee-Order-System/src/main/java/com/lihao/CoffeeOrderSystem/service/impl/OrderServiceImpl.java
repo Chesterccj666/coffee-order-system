@@ -160,6 +160,11 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByStatus(Integer status) {
         return orderMapper.selectByStatus(status);
     }
+    
+    @Override
+    public List<Order> getUserOrdersByStatus(Integer userId, Integer status) {
+        return orderMapper.selectByUserIdAndStatus(userId, status);
+    }
 
     @Override
     public List<OrderItem> getOrderItemsByOrderId(Integer orderId) {

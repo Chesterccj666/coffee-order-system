@@ -53,6 +53,12 @@ public interface OrderMapper {
     List<Order> selectByStatus(Integer status);
     
     /**
+     * 【顾客筛选】根据用户ID和状态查询订单
+     */
+    @Select("SELECT * FROM `order` WHERE user_id = #{userId} AND status = #{status} ORDER BY order_time DESC")
+    List<Order> selectByUserIdAndStatus(@Param("userId") Integer userId, @Param("status") Integer status);
+    
+    /**
      * 【店员功能】查询所有订单
      */
     @Select("SELECT * FROM `order` ORDER BY order_time DESC")
