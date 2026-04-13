@@ -227,18 +227,6 @@
             <el-form-item label="库存" prop="stock">
               <el-input-number v-model="editForm.stock" :min="0" style="width: 100%" />
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="editForm.status">
-                <el-radio label="1">上架</el-radio>
-                <el-radio label="2">下架</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="推荐" prop="recommend">
-              <el-radio-group v-model="editForm.recommend">
-                <el-radio label="1">推荐</el-radio>
-                <el-radio label="2">不推荐</el-radio>
-              </el-radio-group>
-            </el-form-item>
             <el-form-item label="图片">
               <el-upload
                 class="avatar-uploader"
@@ -249,7 +237,6 @@
                 <img v-if="editForm.imagePreview" :src="editForm.imagePreview" class="avatar" />
                 <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
               </el-upload>
-              <p class="image-tip">如需更换图片，请上传新图片；否则保持原图</p>
             </el-form-item>
           </el-form>
           <template #footer>
