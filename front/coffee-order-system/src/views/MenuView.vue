@@ -22,10 +22,13 @@
         <!-- 分类导航 -->
         <el-tabs v-model="activeCategory" @tab-change="onCategoryChange" class="category-tabs">
           <el-tab-pane label="全部" name="all"></el-tab-pane>
-          <el-tab-pane label="美式" name="美式"></el-tab-pane>
-          <el-tab-pane label="意式" name="意式"></el-tab-pane>
-          <el-tab-pane label="摩卡" name="摩卡"></el-tab-pane>
-          <el-tab-pane label="拿铁" name="拿铁"></el-tab-pane>
+          <el-tab-pane label="经典意式" name="经典意式"></el-tab-pane>
+          <el-tab-pane label="风味拿铁" name="风味拿铁"></el-tab-pane>
+          <el-tab-pane label="风味美式" name="风味美式"></el-tab-pane>
+          <el-tab-pane label="奶咖" name="奶咖"></el-tab-pane>
+          <el-tab-pane label="燕麦系列" name="燕麦系列"></el-tab-pane>
+          <el-tab-pane label="单品豆SOE" name="单品豆SOE"></el-tab-pane>
+          <el-tab-pane label="其他" name="其他"></el-tab-pane>
         </el-tabs>
 
         <!-- 咖啡列表 -->

@@ -146,11 +146,12 @@
             </el-form-item>
             <el-form-item label="类别" prop="category">
               <el-select v-model="addForm.category" placeholder="请选择类别" style="width: 100%">
-                <el-option label="美式" value="美式"></el-option>
-                <el-option label="意式" value="意式"></el-option>
-                <el-option label="拿铁" value="拿铁"></el-option>
-                <el-option label="卡布奇诺" value="卡布奇诺"></el-option>
-                <el-option label="摩卡" value="摩卡"></el-option>
+                <el-option label="经典意式" value="经典意式"></el-option>
+                <el-option label="风味拿铁" value="风味拿铁"></el-option>
+                <el-option label="风味美式" value="风味美式"></el-option>
+                <el-option label="奶咖" value="奶咖"></el-option>
+                <el-option label="燕麦系列" value="燕麦系列"></el-option>
+                <el-option label="单品豆SOE" value="单品豆SOE"></el-option>
                 <el-option label="其他" value="其他"></el-option>
               </el-select>
             </el-form-item>
@@ -216,11 +217,12 @@
             </el-form-item>
             <el-form-item label="类别" prop="category">
               <el-select v-model="editForm.category" placeholder="请选择类别" style="width: 100%">
-                <el-option label="美式" value="美式"></el-option>
-                <el-option label="意式" value="意式"></el-option>
-                <el-option label="拿铁" value="拿铁"></el-option>
-                <el-option label="卡布奇诺" value="卡布奇诺"></el-option>
-                <el-option label="摩卡" value="摩卡"></el-option>
+                <el-option label="经典意式" value="经典意式"></el-option>
+                <el-option label="风味拿铁" value="风味拿铁"></el-option>
+                <el-option label="风味美式" value="风味美式"></el-option>
+                <el-option label="奶咖" value="奶咖"></el-option>
+                <el-option label="燕麦系列" value="燕麦系列"></el-option>
+                <el-option label="单品豆SOE" value="单品豆SOE"></el-option>
                 <el-option label="其他" value="其他"></el-option>
               </el-select>
             </el-form-item>

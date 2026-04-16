@@ -14,7 +14,7 @@ public class Coffee {
     private BigDecimal price;        // 单杯价格（默认中杯）（保留两位小数）
     private String coffeeImage;      // 咖啡图片url
     private String description;      // 咖啡描述（口味介绍等内容）
-    private String category;         // 咖啡所属种类（美式、意式等）
+    private String category;         // 咖啡所属种类（经典意式、风味拿铁、风味美式、奶咖、燕麦系列、单品豆SOE、其他）
     private Integer stock;           // 库存数量、默认值为0
     private String status;           // 上架状态：1.上架 2.下架
     private String recommend;        // 是否推荐：1.推荐 2.不推荐
