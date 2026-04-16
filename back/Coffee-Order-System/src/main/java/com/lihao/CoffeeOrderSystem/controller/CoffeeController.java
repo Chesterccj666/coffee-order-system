@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
@@ -123,27 +125,30 @@ public class CoffeeController {
             }
             
             // 保存图片到服务器，使用"coffee-此咖啡的主键id"格式作为文件名
-            String originalFilename = image.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String fileName = "coffee-" + coffee.getId() + extension; // 使用"coffee-此咖啡的主键id"格式
-            String uploadDir = "upload/coffee_image/";
+            String fileName = "coffee-" + coffee.getId() + ".jpg"; // 使用"coffee-此咖啡的主键id"格式，统一为jpg扩展名
+            
+            // 使用与WebMvcConfig一致的上传路径
+            String baseUploadPath = System.getProperty("user.home") + "/CoffeeOrderSystem/upload/";
+            String uploadDir = baseUploadPath + "coffee_image/";
             File uploadPath = new File(uploadDir);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
             File file = new File(uploadPath, fileName);
-            image.transferTo(file);
+            
+            // 将上传的图片转换为JPG格式并保存
+            BufferedImage bufferedImage = javax.imageio.ImageIO.read(image.getInputStream());
+            javax.imageio.ImageIO.write(bufferedImage, "jpg", file);
             
             // 更新咖啡的图片路径
-            coffee.setCoffeeImage("/upload/coffee_image/" + fileName);
+            coffee.setCoffeeImage("upload/coffee_image/" + fileName);
             coffeeService.updateCoffeeImage(coffee.getId(), coffee.getCoffeeImage());
             
             return new ResponseResult<>(200, "添加成功", coffee);
         } catch (IOException e) {
             return new ResponseResult<>(500, "图片上传失败：" + e.getMessage(), null);
+        } catch (IllegalArgumentException e) {
+            return new ResponseResult<>(500, "图片格式不支持：" + e.getMessage(), null);
         } catch (Exception e) {
             return new ResponseResult<>(500, "添加失败：" + e.getMessage(), null);
         }
@@ -173,35 +178,37 @@ public class CoffeeController {
             String imagePath = existingCoffee.getCoffeeImage(); // 默认保持原有图片路径
             if (image != null && !image.isEmpty()) {
                 // 删除旧图片
-                 if (existingCoffee.getCoffeeImage() != null && !existingCoffee.getCoffeeImage().isEmpty()) {
-                     // 处理图片路径，确保正确构建文件路径
-                     String oldImagePath = existingCoffee.getCoffeeImage();
-                     // 如果路径以"/"开头，去掉开头的"/"以避免路径问题
-                     if (oldImagePath.startsWith("/")) {
-                         oldImagePath = oldImagePath.substring(1);
-                     }
-                     File oldFile = new File(oldImagePath);
-                     if (oldFile.exists()) {
-                         oldFile.delete();
-                     }
-                 }
+                if (existingCoffee.getCoffeeImage() != null && !existingCoffee.getCoffeeImage().isEmpty()) {
+                    // 构建正确的文件路径
+                    String baseUploadPath = System.getProperty("user.home") + "/CoffeeOrderSystem/upload/";
+                    String oldImagePath = existingCoffee.getCoffeeImage();
+                    // 如果路径以"upload/"开头，构造完整的物理路径
+                    if (oldImagePath.startsWith("upload/")) {
+                        oldImagePath = baseUploadPath + oldImagePath.substring("upload/".length());
+                    }
+                    File oldFile = new File(oldImagePath);
+                    if (oldFile.exists()) {
+                        oldFile.delete();
+                    }
+                }
                 
                 // 保存新图片，使用"coffee-此咖啡的主键id"格式作为文件名
-                String originalFilename = image.getOriginalFilename();
-                String extension = "";
-                if (originalFilename != null && originalFilename.contains(".")) {
-                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                }
-                String fileName = "coffee-" + id + extension; // 使用"coffee-此咖啡的主键id"格式
-                String uploadDir = "upload/coffee_image/";
+                String fileName = "coffee-" + id + ".jpg"; // 使用"coffee-此咖啡的主键id"格式，统一为jpg扩展名
+                
+                // 使用与WebMvcConfig一致的上传路径
+                String baseUploadPath = System.getProperty("user.home") + "/CoffeeOrderSystem/upload/";
+                String uploadDir = baseUploadPath + "coffee_image/";
                 File uploadPath = new File(uploadDir);
                 if (!uploadPath.exists()) {
                     uploadPath.mkdirs();
                 }
                 File file = new File(uploadPath, fileName);
-                image.transferTo(file);
                 
-                imagePath = "/upload/coffee_image/" + fileName;
+                // 将上传的图片转换为JPG格式并保存
+                BufferedImage bufferedImage = javax.imageio.ImageIO.read(image.getInputStream());
+                javax.imageio.ImageIO.write(bufferedImage, "jpg", file);
+                
+                imagePath = "upload/coffee_image/" + fileName;
             }
             
             Coffee coffee = new Coffee();
@@ -225,6 +232,8 @@ public class CoffeeController {
             }
         } catch (IOException e) {
             return new ResponseResult<>(500, "图片处理失败：" + e.getMessage(), null);
+        } catch (IllegalArgumentException e) {
+            return new ResponseResult<>(500, "图片格式不支持：" + e.getMessage(), null);
         } catch (Exception e) {
             return new ResponseResult<>(500, "更新失败：" + e.getMessage(), null);
         }
