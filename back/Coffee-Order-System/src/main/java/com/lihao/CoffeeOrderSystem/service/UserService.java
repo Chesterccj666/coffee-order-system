@@ -22,6 +22,11 @@ public interface UserService {
      * 更新用户信息
      */
     boolean updateUser(User user);
+    
+    /**
+     * 修改用户密码
+     */
+    boolean changePassword(Integer userId, String oldPassword, String newPassword);
 
     /**
      * 用户登录

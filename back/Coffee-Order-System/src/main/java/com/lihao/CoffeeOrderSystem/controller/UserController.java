@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -214,6 +215,27 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace(); // 添加日志记录
             return new ResponseResult<>(500, "更新失败：" + e.getMessage(), null);
+        }
+    }
+    
+    /**
+     * 修改用户密码
+     */
+    @PutMapping("/changePassword")
+    public Object changePassword(@RequestBody Map<String, String> requestData) {
+        try {
+            Integer userId = Integer.parseInt(requestData.get("userId"));
+            String oldPassword = requestData.get("oldPassword");
+            String newPassword = requestData.get("newPassword");
+            
+            boolean success = userService.changePassword(userId, oldPassword, newPassword);
+            if (success) {
+                return new ResponseResult<>(200, "密码修改成功", null);
+            } else {
+                return new ResponseResult<>(400, "原密码错误或修改失败", null);
+            }
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "密码修改失败：" + e.getMessage(), null);
         }
     }
     

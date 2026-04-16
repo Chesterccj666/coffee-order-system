@@ -36,4 +36,10 @@ public interface UserMapper {
     @Update("UPDATE user SET username=#{username}, phone=#{phone}, " +
             "gender=#{gender}, head_image=#{headImage} WHERE id=#{id}")
     int update(User user);
+    
+    /**
+     * 【修改密码】根据id更新用户密码
+     */
+    @Update("UPDATE user SET password=#{password} WHERE id=#{id}")
+    int updatePassword(@Param("id") Integer id, @Param("password") String password);
 }

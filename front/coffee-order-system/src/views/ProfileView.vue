@@ -94,6 +94,29 @@
             </el-card>
           </div>
         </div>
+        
+        <!-- 密码修改卡片 -->
+        <div class="password-change-container">
+          <el-card class="password-change-card">
+            <div class="password-change-header">
+              <h3>修改密码</h3>
+            </div>
+            <el-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef" label-width="100px" style="max-width: 400px;">
+              <el-form-item label="原密码" prop="oldPassword">
+                <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入原密码" />
+              </el-form-item>
+              <el-form-item label="新密码" prop="newPassword">
+                <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" />
+              </el-form-item>
+              <el-form-item label="确认新密码" prop="confirmNewPassword">
+                <el-input v-model="passwordForm.confirmNewPassword" type="password" placeholder="请再次输入新密码" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="changePassword" size="large" class="change-password-btn">确认修改</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
       </el-main>
 
       <!-- 底部 -->
@@ -108,7 +131,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getUserInfo, updateUserInfo } from '@/api/user'
+import { getUserInfo, updateUserInfo, changePassword as apiChangePassword } from '@/api/user'
 import { Plus } from '@element-plus/icons-vue'
 
 export default {
@@ -119,6 +142,7 @@ export default {
   setup() {
     const router = useRouter()
     const profileFormRef = ref()
+    const passwordFormRef = ref()
     const isLoggedIn = ref(false)
     const userInfo = ref({})
     
@@ -144,6 +168,34 @@ export default {
         { required: true, message: '请选择性别', trigger: 'change' }
       ]
     }
+    
+    const passwordForm = ref({
+      oldPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    })
+    
+    const validateConfirmPassword = (rule, value, callback) => {
+      if (value !== passwordForm.value.newPassword) {
+        callback(new Error('两次输入的新密码不一致'))
+      } else {
+        callback()
+      }
+    }
+    
+    const passwordRules = ref({
+      oldPassword: [
+        { required: true, message: '请输入原密码', trigger: 'blur' }
+      ],
+      newPassword: [
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        { min: 6, max: 20, message: '密码长度在6到20个字符', trigger: 'blur' }
+      ],
+      confirmNewPassword: [
+        { required: true, message: '请再次输入新密码', trigger: 'blur' },
+        { validator: validateConfirmPassword, trigger: 'blur' }
+      ]
+    })
 
     onMounted(() => {
       checkLoginStatus()
@@ -269,16 +321,64 @@ export default {
       return url + '?t=' + Date.now();
     }
 
+    const formatCurrency = (amount) => {
+      // 确保传入的值是数字类型，如果不是则默认为0
+      const num = typeof amount === 'number' ? amount : 0;
+      return num.toFixed(2);
+    }
+
+    const changePassword = async () => {
+      try {
+        const valid = await passwordFormRef.value.validate()
+        if (!valid) return
+
+        // 验证新密码和确认新密码是否一致
+        if (passwordForm.value.newPassword !== passwordForm.value.confirmNewPassword) {
+          ElMessage.error('两次输入的新密码不一致')
+          return
+        }
+
+        // 准备修改密码的请求数据
+        const changePasswordData = {
+          userId: form.value.id,
+          oldPassword: passwordForm.value.oldPassword,
+          newPassword: passwordForm.value.newPassword
+        }
+
+        const response = await apiChangePassword(changePasswordData)
+
+        if (response.code === 200) {
+          ElMessage.success('密码修改成功')
+          // 清空密码表单
+          passwordForm.value = {
+            oldPassword: '',
+            newPassword: '',
+            confirmNewPassword: ''
+          }
+        } else {
+          ElMessage.error(response.message || '密码修改失败')
+        }
+      } catch (error) {
+        console.error('修改密码失败:', error)
+        ElMessage.error(error.message || '修改密码失败')
+      }
+    }
+
     return {
       profileFormRef,
+      passwordFormRef,
       isLoggedIn,
       userInfo,
       form,
+      passwordForm,
       rules,
+      passwordRules,
       handleAvatarChange,
       updateProfile,
+      changePassword,
       logout,
-      getImageUrl
+      getImageUrl,
+      formatCurrency
     }
   }
 }
@@ -484,6 +584,45 @@ export default {
   line-height: 60px;
 }
 
+.password-change-container {
+  width: 32%;
+  margin: 30px auto;
+}
+
+.password-change-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background: white;
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.password-change-header {
+  margin-bottom: 20px;
+}
+
+.password-change-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.change-password-btn {
+  background: linear-gradient(135deg, #409EFF 0%, #66b3ff 100%);
+  border: none;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.change-password-btn:hover {
+  background: linear-gradient(135deg, #337ecc 0%, #5ca0e6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
 /* 响应式设计 */
 @media (max-width: 992px) {
   .profile-wrapper {
@@ -492,6 +631,10 @@ export default {
   
   .profile-card-container {
     flex: 0 0 auto;
+  }
+  
+  .password-change-container {
+    margin-top: 20px;
   }
 }
 

@@ -31,3 +31,12 @@ export const updateUserInfo = (data) => {
     data
   })
 }
+
+// 修改密码
+export const changePassword = (data) => {
+  return request({
+    url: '/api/user/changePassword',
+    method: 'put',
+    data
+  })
+}

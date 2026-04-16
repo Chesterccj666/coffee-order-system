@@ -32,7 +32,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(User user) {
+        // 验证手机号是否已被其他用户使用（除了当前用户）
+        User existingUser = userMapper.selectByPhone(user.getPhone());
+        if (existingUser != null && !existingUser.getId().equals(user.getId())) {
+            return false; // 手机号已被其他用户使用
+        }
+        
         int result = userMapper.update(user);
+        return result > 0;
+    }
+
+    @Override
+    public boolean changePassword(Integer userId, String oldPassword, String newPassword) {
+        // 首先验证原密码是否正确
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            return false; // 用户不存在
+        }
+        
+        if (!user.getPassword().equals(oldPassword)) {
+            return false; // 原密码错误
+        }
+        
+        // 更新密码
+        int result = userMapper.updatePassword(user.getId(), newPassword);
         return result > 0;
     }
 
