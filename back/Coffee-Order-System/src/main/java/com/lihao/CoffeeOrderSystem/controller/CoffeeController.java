@@ -107,26 +107,11 @@ public class CoffeeController {
             @RequestParam("status") String status,
             @RequestParam("recommend") String recommend,
             @RequestParam("image") MultipartFile image) {
+        Coffee coffee = null;
+        File tempFile = null;
         try {
-            Coffee coffee = new Coffee();
-            coffee.setName(name);
-            coffee.setPrice(java.math.BigDecimal.valueOf(Double.parseDouble(price)));
-            coffee.setDescription(description);
-            coffee.setCategory(category);
-            coffee.setStock(stock);
-            coffee.setStatus(status);
-            coffee.setRecommend(recommend);
-            coffee.setSales(0); // 新增咖啡销量为0
-            
-            // 先保存咖啡信息以获得ID
-            boolean success = coffeeService.addCoffee(coffee);
-            if (!success) {
-                return new ResponseResult<>(500, "添加失败", null);
-            }
-            
-            // 保存图片到服务器，使用"coffee-此咖啡的主键id"格式作为文件名
-            String fileName = "coffee-" + coffee.getId() + ".jpg"; // 使用"coffee-此咖啡的主键id"格式，统一为jpg扩展名
-            
+            // 首先处理图片，生成临时图片文件
+            String tempFileName = "temp_coffee_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000) + ".jpg"; // 使用临时文件名
             // 使用与WebMvcConfig一致的上传路径
             String baseUploadPath = System.getProperty("user.home") + "/CoffeeOrderSystem/upload/";
             String uploadDir = baseUploadPath + "coffee_image/";
@@ -134,15 +119,46 @@ public class CoffeeController {
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
-            File file = new File(uploadPath, fileName);
+            tempFile = new File(uploadPath, tempFileName);
             
             // 将上传的图片转换为JPG格式并保存
             BufferedImage bufferedImage = javax.imageio.ImageIO.read(image.getInputStream());
-            javax.imageio.ImageIO.write(bufferedImage, "jpg", file);
+            javax.imageio.ImageIO.write(bufferedImage, "jpg", tempFile);
             
-            // 更新咖啡的图片路径
-            coffee.setCoffeeImage("upload/coffee_image/" + fileName);
-            coffeeService.updateCoffeeImage(coffee.getId(), coffee.getCoffeeImage());
+            // 创建咖啡对象并设置基本信息（暂时使用临时图片路径）
+            coffee = new Coffee();
+            coffee.setName(name);
+            coffee.setPrice(java.math.BigDecimal.valueOf(Double.parseDouble(price)));
+            coffee.setCoffeeImage("upload/coffee_image/" + tempFileName); // 临时图片路径
+            coffee.setDescription(description);
+            coffee.setCategory(category);
+            coffee.setStock(stock);
+            coffee.setStatus(status);
+            coffee.setRecommend(recommend);
+            coffee.setSales(0); // 新增咖啡销量为0
+            
+            // 保存咖啡信息（此时包含临时图片路径）
+            boolean success = coffeeService.addCoffee(coffee);
+            if (!success) {
+                // 如果数据库插入失败，删除已保存的临时图片
+                tempFile.delete();
+                return new ResponseResult<>(500, "添加失败", null);
+            }
+            
+            // 成功保存后，将临时图片重命名为正确格式：coffee-{ID}.jpg
+            String finalFileName = "coffee-" + coffee.getId() + ".jpg";
+            File finalFile = new File(uploadPath, finalFileName);
+            
+            // 重命名文件
+            if (tempFile.renameTo(finalFile)) {
+                // 更新数据库中的图片路径
+                coffee.setCoffeeImage("upload/coffee_image/" + finalFileName);
+                coffeeService.updateCoffeeImage(coffee.getId(), coffee.getCoffeeImage());
+            } else {
+                // 如果重命名失败，至少保留临时文件名
+                // 但这种情况应该很少见
+                System.out.println("警告：无法重命名图片文件，保留临时文件名");
+            }
             
             return new ResponseResult<>(200, "添加成功", coffee);
         } catch (IOException e) {
@@ -150,6 +166,19 @@ public class CoffeeController {
         } catch (IllegalArgumentException e) {
             return new ResponseResult<>(500, "图片格式不支持：" + e.getMessage(), null);
         } catch (Exception e) {
+            // 如果出现其他异常，尝试删除临时图片（如果有的话）
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
+            // 如果coffee对象已创建且数据库中有记录，尝试清理
+            if (coffee != null && coffee.getId() != null) {
+                try {
+                    // 删除数据库记录
+                    coffeeService.deleteCoffee(coffee.getId());
+                } catch (Exception ex) {
+                    // 删除数据库记录失败，不影响主流程
+                }
+            }
             return new ResponseResult<>(500, "添加失败：" + e.getMessage(), null);
         }
     }

@@ -18,7 +18,7 @@ public interface CoffeeMapper {
      * 【咖啡详情页】根据id查询咖啡
      */
     @Select("SELECT * FROM coffee WHERE id = #{id}")
-        Coffee selectById(Integer id);
+        Coffee selectById(@Param("id") Integer id);
 
     /**
      * 【分类筛选】根据分类查询咖啡
