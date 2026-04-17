@@ -75,6 +75,8 @@
                   <div class="form-submit-container">
                     <el-button type="primary" @click="updateProfile" class="save-btn">保存更改</el-button>
                     <el-button @click="logout" class="logout-btn">退出登录</el-button>
+                    <br><br>
+                    <el-button @click="showPasswordChange" class="password-change-trigger-btn">修改密码</el-button>
                   </div>
                 </div>
               </div>
@@ -83,7 +85,7 @@
           </div>
           
           <!-- 密码修改卡片 -->
-         <div class="password-change-container">
+         <div v-if="showPasswordChangeCard" class="password-change-container">
            <el-card class="password-change-card">
              <div class="password-change-header">
                <h3>修改密码</h3>
@@ -161,6 +163,8 @@ export default {
       newPassword: '',
       confirmNewPassword: ''
     })
+    
+    const showPasswordChangeCard = ref(false)
     
     const validateConfirmPassword = (rule, value, callback) => {
       if (value !== passwordForm.value.newPassword) {
@@ -310,6 +314,10 @@ export default {
 
 
 
+    const showPasswordChange = () => {
+      showPasswordChangeCard.value = !showPasswordChangeCard.value
+    }
+    
     const changePassword = async () => {
       try {
         const valid = await passwordFormRef.value.validate()
@@ -338,6 +346,8 @@ export default {
             newPassword: '',
             confirmNewPassword: ''
           }
+          // 成功修改密码后隐藏密码修改区域
+          showPasswordChangeCard.value = false
         } else {
           ElMessage.error(response.message || '密码修改失败')
         }
@@ -359,8 +369,10 @@ export default {
       handleAvatarChange,
       updateProfile,
       changePassword,
+      showPasswordChange,
       logout,
-      getImageUrl
+      getImageUrl,
+      showPasswordChangeCard
     }
   }
 }
@@ -403,7 +415,7 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 30px;
-  padding: 20px;
+  padding: 30px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -420,7 +432,7 @@ export default {
   background: white;
   padding: 30px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 50vh;
+  height: 46vh;
   display: flex;
   flex-direction: column;
 }
@@ -521,6 +533,23 @@ export default {
   margin-top: 20px;
 }
 
+.password-change-trigger-btn {
+  background: linear-gradient(135deg, #409EFF 0%, #409EFF 100%);
+  border: none;
+  padding: 12px 100px 12px 100px;
+  font-size: 16px;
+  font-weight: 500;
+  
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.password-change-trigger-btn:hover {
+  background: #ff0000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+}
+
 .save-btn {
   background: linear-gradient(135deg, #409EFF 0%, #409EFF 100%);
   border: none;
@@ -530,16 +559,26 @@ export default {
 }
 
 .save-btn:hover {
-  background: linear-gradient(135deg, #7a3a0f 0%, #8b4826 100%);
+  background: linear-gradient(135deg, #337ecc 0%, #5ca0e6 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
 .logout-btn {
+  background: linear-gradient(135deg, #409EFF 0%, #409EFF 100%);
+  border: none;
   padding: 12px 30px;
   font-size: 16px;
   font-weight: 500;
   margin-left: 15px !important;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #337ecc 0%, #5ca0e6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
 .footer {
@@ -590,12 +629,11 @@ export default {
 }
 
 .change-password-btn {
-  background: linear-gradient(135deg, #409EFF 0%, #66b3ff 100%);
+  background: linear-gradient(135deg, #409EFF 0%, #409EFF 100%);
   border: none;
-  padding: 12px 30px;
+  padding: 8px 50px;
   font-size: 16px;
   font-weight: 500;
-
 }
 
 .change-password-btn:hover {
