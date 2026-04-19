@@ -27,50 +27,52 @@
             </div>
             
             <div v-else>
-              <el-table :data="cartItems" stripe style="width: 100%">
-                <el-table-column prop="coffeeImage" label="图片" width="100">
-                  <template #default="{ row }">
-                    <img :src="row.coffeeImage" class="table-image" alt="咖啡图片" />
-                  </template>
-                </el-table-column>
-                <el-table-column prop="coffeeName" label="商品名称" width="200" />
-                <el-table-column label="甜度" width="120">
-                  <template #default="{ row }">
-                    <span>{{ getSugarText(row.sweet) }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="温度" width="120">
-                  <template #default="{ row }">
-                    <span>{{ getTempText(row.temperature) }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="price" label="单价" width="100">
-                  <template #default="{ row }">
-                    ¥{{ row.price }}
-                  </template>
-                </el-table-column>
-                <el-table-column label="数量" width="150">
-                  <template #default="{ row }">
-                    <el-input-number 
-                      v-model="row.quantity" 
-                      :min="1" 
-                      :max="10" 
-                      size="small"
-                      @change="updateQuantity(row.id, row.quantity)"
-                    />
-                  </template>
-                </el-table-column>
-                <el-table-column label="小计" width="100">
-                  <template #default="{ row }">
-                    <span class="subtotal">¥{{ (row.price * row.quantity).toFixed(2) }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" width="120">
-                  <template #default="{ row }">
-                    <el-button type="danger" size="small" @click="removeFromCart(row.id)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
+               <div class="cart-items-container">
+                 <el-table :data="cartItems" stripe style="width: 100%" table-layout="auto">
+                   <el-table-column prop="coffeeImage" label="图片" width="80">
+                     <template #default="{ row }">
+                       <img :src="row.coffeeImage" class="table-image" alt="咖啡图片" />
+                     </template>
+                   </el-table-column>
+                   <el-table-column prop="coffeeName" label="商品名称" min-width="150" />
+                   <el-table-column label="甜度" width="80">
+                     <template #default="{ row }">
+                       <span>{{ getSugarText(row.sweet) }}</span>
+                     </template>
+                   </el-table-column>
+                   <el-table-column label="温度" width="80">
+                     <template #default="{ row }">
+                       <span>{{ getTempText(row.temperature) }}</span>
+                     </template>
+                   </el-table-column>
+                   <el-table-column prop="price" label="单价" width="90">
+                     <template #default="{ row }">
+                       ¥{{ row.price }}
+                     </template>
+                   </el-table-column>
+                   <el-table-column label="数量" width="120">
+                     <template #default="{ row }">
+                       <el-input-number 
+                         v-model="row.quantity" 
+                         :min="1" 
+                         :max="10" 
+                         size="small"
+                         @change="updateQuantity(row.id, row.quantity)"
+                       />
+                     </template>
+                   </el-table-column>
+                   <el-table-column label="小计" width="100">
+                     <template #default="{ row }">
+                       <span class="subtotal">¥{{ (row.price * row.quantity).toFixed(2) }}</span>
+                     </template>
+                   </el-table-column>
+                   <el-table-column label="操作" width="100">
+                     <template #default="{ row }">
+                       <el-button type="danger" size="small" @click="removeFromCart(row.id)">删除</el-button>
+                     </template>
+                   </el-table-column>
+                 </el-table>
+               </div>
 
               <div class="cart-summary">
                 <div class="total">
@@ -314,13 +316,20 @@ export default {
 
 .cart-card {
   width: 100%;
-  max-width: 1050px;
+  max-width: 1000px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   background: white;
   padding: 30px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow-x: visible;
+}
+
+.cart-items-container {
+  max-height: 400px; /* 大约可显示5个项目，超出后出现垂直滚动条 */
+  overflow-y: auto;
+  margin-bottom: 20px;
 }
 
 .page-title {
