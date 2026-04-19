@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 购物车</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
@@ -19,66 +19,68 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <h2 class="page-title">购物车</h2>
-        
-        <div v-if="cartItems.length === 0" class="empty-cart">
-          <el-empty description="购物车为空" />
-          <el-button type="primary" @click="$router.push('/menu')">去添加商品</el-button>
-        </div>
-        
-        <div v-else>
-          <el-table :data="cartItems" stripe style="width: 100%">
-            <el-table-column prop="coffeeImage" label="图片" width="100">
-              <template #default="{ row }">
-                <img :src="row.coffeeImage" class="table-image" alt="咖啡图片" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="coffeeName" label="商品名称" width="200" />
-            <el-table-column label="甜度" width="120">
-              <template #default="{ row }">
-                <span>{{ getSugarText(row.sweet) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="温度" width="120">
-              <template #default="{ row }">
-                <span>{{ getTempText(row.temperature) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="price" label="单价" width="100">
-              <template #default="{ row }">
-                ¥{{ row.price }}
-              </template>
-            </el-table-column>
-            <el-table-column label="数量" width="150">
-              <template #default="{ row }">
-                <el-input-number 
-                  v-model="row.quantity" 
-                  :min="1" 
-                  :max="10" 
-                  size="small"
-                  @change="updateQuantity(row.id, row.quantity)"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column label="小计" width="100">
-              <template #default="{ row }">
-                <span class="subtotal">¥{{ (row.price * row.quantity).toFixed(2) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="120">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="removeFromCart(row.id)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <div class="cart-summary">
-            <div class="total">
-              <span>总计：</span>
-              <span class="total-price">¥{{ totalAmount.toFixed(2) }}</span>
+        <div class="cart-wrapper">
+          <el-card class="cart-card">            
+            <div v-if="cartItems.length === 0" class="empty-cart">
+              <el-empty description="购物车为空" />
+              <el-button type="primary" @click="$router.push('/menu')">去添加商品</el-button>
             </div>
-            <el-button type="primary" size="large" @click="checkout">去结算</el-button>
-          </div>
+            
+            <div v-else>
+              <el-table :data="cartItems" stripe style="width: 100%">
+                <el-table-column prop="coffeeImage" label="图片" width="100">
+                  <template #default="{ row }">
+                    <img :src="row.coffeeImage" class="table-image" alt="咖啡图片" />
+                  </template>
+                </el-table-column>
+                <el-table-column prop="coffeeName" label="商品名称" width="200" />
+                <el-table-column label="甜度" width="120">
+                  <template #default="{ row }">
+                    <span>{{ getSugarText(row.sweet) }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="温度" width="120">
+                  <template #default="{ row }">
+                    <span>{{ getTempText(row.temperature) }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="price" label="单价" width="100">
+                  <template #default="{ row }">
+                    ¥{{ row.price }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="数量" width="150">
+                  <template #default="{ row }">
+                    <el-input-number 
+                      v-model="row.quantity" 
+                      :min="1" 
+                      :max="10" 
+                      size="small"
+                      @change="updateQuantity(row.id, row.quantity)"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column label="小计" width="100">
+                  <template #default="{ row }">
+                    <span class="subtotal">¥{{ (row.price * row.quantity).toFixed(2) }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120">
+                  <template #default="{ row }">
+                    <el-button type="danger" size="small" @click="removeFromCart(row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
+              <div class="cart-summary">
+                <div class="total">
+                  <span>总计：</span>
+                  <span class="total-price">¥{{ totalAmount.toFixed(2) }}</span>
+                </div>
+                <el-button type="primary" size="large" @click="checkout">去结算</el-button>
+              </div>
+            </div>
+          </el-card>
         </div>
       </el-main>
 
@@ -296,8 +298,29 @@ export default {
 }
 
 .main-content {
+  padding: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  min-height: calc(100vh - 140px);
+}
+
+.cart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   padding: 20px;
-  background-color: #f5f5f5;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cart-card {
+  width: 100%;
+  max-width: 1050px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background: white;
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .page-title {
