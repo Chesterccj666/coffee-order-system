@@ -66,7 +66,6 @@
                             <p class="stock">剩余: {{ coffee.stock }}</p>
                           </div>
                           <div class="right-side">
-                            <p class="price">¥{{ coffee.price }}</p>
                             <div class="customization-options">
                               <div class="option-group">
                                 <span class="option-label">甜度:</span>
@@ -102,7 +101,7 @@
                                 @click="addToCart(coffee)"
                                 :disabled="coffee.stock <= 0"
                               >
-                                加入购物车
+                                ¥{{ (coffee.price * selectedOptions[coffee.id].quantity).toFixed(2) }} 加入购物车
                               </el-button>
                             </div>
                           </div>
@@ -135,46 +134,44 @@
                               <p class="stock">剩余: {{ coffee.stock }}</p>
                             </div>
                             <div class="right-side">
-                              <p class="price">¥{{ coffee.price }}</p>
-                              <div class="customization-options">
-                                <div class="option-group">
-                                  <span class="option-label">甜度:</span>
-                                  <div class="option-controls">
-                                    <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="small">
-                                      <el-radio-button :label="1">正常糖</el-radio-button>
-                                      <el-radio-button :label="2">少糖</el-radio-button>
-                                      <el-radio-button :label="3">不加糖</el-radio-button>
-                                    </el-radio-group>
-                                  </div>
-                                </div>
-                                <div class="option-group">
-                                  <span class="option-label">温度:</span>
-                                  <div class="option-controls">
-                                    <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="small">
-                                      <el-radio-button :label="1">烫</el-radio-button>
-                                      <el-radio-button :label="2">温热</el-radio-button>
-                                      <el-radio-button :label="3">少冰</el-radio-button>
-                                      <el-radio-button :label="4">正常冰</el-radio-button>
-                                    </el-radio-group>
-                                  </div>
+                            <div class="customization-options">
+                              <div class="option-group">
+                                <div class="option-controls">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="medium">
+                                    <el-radio-button :label="1">正常糖</el-radio-button>
+                                    <el-radio-button :label="2">少糖</el-radio-button>
+                                    <el-radio-button :label="3">不加糖</el-radio-button>
+                                  </el-radio-group>
                                 </div>
                               </div>
-                              <div class="add-to-cart">
-                                <el-input-number 
-                                  v-model="selectedOptions[coffee.id].quantity" 
-                                  :min="1" 
-                                  :max="coffee.stock"
-                                  size="small"
-                                />
-                                <el-button 
-                                  type="primary" 
-                                  @click="addToCart(coffee)"
-                                  :disabled="coffee.stock <= 0"
-                                >
-                                  加入购物车
-                                </el-button>
+                              <div class="option-group">
+                                <div class="option-controls">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="medium">
+                                    <el-radio-button :label="1">烫</el-radio-button>
+                                    <el-radio-button :label="2">温热</el-radio-button>
+                                    <el-radio-button :label="3">少冰</el-radio-button>
+                                    <el-radio-button :label="4">正常冰</el-radio-button>
+                                  </el-radio-group>
+                                </div>
                               </div>
                             </div>
+                            <div class="add-to-cart">
+                              <el-input-number 
+                                v-model="selectedOptions[coffee.id].quantity" 
+                                :min="1" 
+                                :max="coffee.stock"
+                                size="medium"
+                              />
+                              <el-button 
+                                type="primary" 
+                                @click="addToCart(coffee)"
+                                :disabled="coffee.stock <= 0"
+                                size="large"
+                              >
+                                ¥{{ (coffee.price * selectedOptions[coffee.id].quantity).toFixed(2) }} 加入购物车
+                              </el-button>
+                            </div>
+                          </div>
                           </div>
                         </div>
                       </div>
@@ -535,16 +532,7 @@ export default {
   margin: 0 0 15px 0;
 }
 
-.price {
-  color: #e74c3c;
-  font-weight: bold;
-  font-size: 50px;
-  margin: 0 0 15px 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-}
+
 
 .customization-options {
   display: flex;
@@ -583,6 +571,10 @@ export default {
 .add-to-cart .el-button {
   font-size: 16px;
   padding: 10px 20px;
+  width: 200px; /* 固定按钮宽度 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .coffee-card {
