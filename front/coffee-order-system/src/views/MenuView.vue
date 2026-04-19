@@ -88,16 +88,7 @@
       </el-footer>
     </el-container>
 
-    <!-- 添加到购物车成功提示对话框 -->
-    <el-dialog v-model="showAddCartSuccess" title="添加成功" width="30%">
-      <p>已将 {{ addToCartCoffeeName }} 添加到购物车！</p>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="showAddCartSuccess = false">继续浏览</el-button>
-          <el-button type="primary" @click="goToCart">去购物车</el-button>
-        </span>
-      </template>
-    </el-dialog>
+
   </div>
 </template>
 
@@ -116,8 +107,7 @@ export default {
     const activeCategory = ref('all')
     const isLoggedIn = ref(false)
     const userInfo = ref({})
-    const showAddCartSuccess = ref(false)
-    const addToCartCoffeeName = ref('')
+
     const selectedOptions = ref({})
 
     onMounted(() => {
@@ -202,10 +192,11 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          // 跳转到登录页面
           router.push('/login')
+        }).catch(() => {
+          // 用户取消登录
+          return
         })
-        return
       }
 
       try {
@@ -223,8 +214,7 @@ export default {
         const response = await addCart(cartItem)
         
         if (response.code === 200) {
-          addToCartCoffeeName.value = coffee.name
-          showAddCartSuccess.value = true
+          ElMessage.success(`已将 ${coffee.name} 添加到购物车！`)
         } else {
           ElMessage.error(response.message)
         }
@@ -234,23 +224,17 @@ export default {
       }
     }
 
-    const goToCart = () => {
-      showAddCartSuccess.value = false
-      router.push('/cart')
-    }
+
 
     return {
       coffees,
       activeCategory,
       isLoggedIn,
       userInfo,
-      showAddCartSuccess,
-      addToCartCoffeeName,
       selectedOptions,
       filteredCoffees,
       onCategoryChange,
-      addToCart,
-      goToCart
+      addToCart
     }
   }
 }
