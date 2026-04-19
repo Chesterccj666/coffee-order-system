@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 咖啡管理</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/menu')">菜单</el-button>
@@ -25,12 +25,17 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <h2 class="page-title">咖啡管理</h2>
-        
         <!-- 操作按钮 -->
         <div class="operation-buttons">
           <el-button type="primary" @click="showAddDialog = true">添加咖啡</el-button>
           <el-button @click="loadCoffeeList">刷新列表</el-button>
+          <el-input 
+            v-model="searchKeyword" 
+            placeholder="搜索咖啡名称" 
+            style="width: 200px; margin-left: 20px;" 
+            clearable
+            @input="onSearchChange"
+          />
         </div>
 
         <!-- 咖啡列表 -->
@@ -39,13 +44,23 @@
           stripe 
           style="width: 100%"
           v-loading="loading">
-          <el-table-column prop="name" label="咖啡名称" width="150"></el-table-column>
-          <el-table-column prop="price" label="价格" width="100">
+          <el-table-column prop="name" width="150">
+            <template #header>
+              <span class="table-header-text">咖啡名称</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="price" width="100">
+            <template #header>
+              <span class="table-header-text">价格</span>
+            </template>
             <template #default="{ row }">
               ¥{{ row.price }}
             </template>
           </el-table-column>
           <el-table-column label="图片" width="100">
+            <template #header>
+              <span class="table-header-text">图片</span>
+            </template>
             <template #default="{ row }">
               <el-image 
                 :src="getImageUrl(row.coffeeImage)" 
@@ -56,17 +71,43 @@
               ></el-image>
             </template>
           </el-table-column>
-          <el-table-column prop="description" label="描述" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="category" label="类别" width="100"></el-table-column>
+          <el-table-column prop="description" show-overflow-tooltip>
+            <template #header>
+              <span class="table-header-text">描述</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="category" width="180">
+              <template #header>
+                <div class="filter-header-inline">
+                  <span class="table-header-text">类别</span>
+                  <el-select 
+                    v-model="selectedCategory" 
+                    placeholder="全部" 
+                    size="small"
+                    clearable
+                    style="margin-left: 10px; width: 100px;"
+                    @change="onCategoryChange"
+                  >
+                    <el-option label="全部" value=""></el-option>
+                    <el-option label="经典意式" value="经典意式"></el-option>
+                    <el-option label="风味拿铁" value="风味拿铁"></el-option>
+                    <el-option label="风味美式" value="风味美式"></el-option>
+                    <el-option label="奶咖" value="奶咖"></el-option>
+                    <el-option label="燕麦系列" value="燕麦系列"></el-option>
+                    <el-option label="单品豆SOE" value="单品豆SOE"></el-option>
+                    <el-option label="其他" value="其他"></el-option>
+                  </el-select>
+                </div>
+              </template>
+            </el-table-column>
           <el-table-column label="库存" width="120">
             <template #header>
               <div class="sort-header-inline">
-                <span>库存</span>
+                <span class="table-header-text">库存</span>
                 <el-button 
-                  size="small" 
-                  :type="stockSortOrder ? 'primary' : 'default'"
+                  size="medium" 
+                  :type="stockSortOrder === 'asc' || stockSortOrder === 'desc' ? 'primary' : 'default'"
                   @click="toggleStockSort"
-                  :icon="stockSortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'"
                 >
                   {{ stockSortOrder === 'asc' ? '升序' : stockSortOrder === 'desc' ? '降序' : '排序' }}
                 </el-button>
@@ -76,29 +117,34 @@
               <span>{{ row.stock }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="状态" width="100">
+          <el-table-column width="100">
+            <template #header>
+              <span class="table-header-text">状态</span>
+            </template>
             <template #default="{ row }">
               <el-tag :type="row.status === '1' ? 'success' : 'danger'">
                 {{ row.status === '1' ? '上架' : '下架' }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="推荐" width="100">
+          <el-table-column width="100">
+            <template #header>
+              <span class="table-header-text">推荐</span>
+            </template>
             <template #default="{ row }">
               <el-tag :type="row.recommend === '1' ? 'warning' : 'info'">
-                {{ row.recommend === '1' ? '推荐' : '普通' }}
+                {{ row.recommend === '1' ? '推荐' : '不推荐' }}
               </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="销量" width="120">
             <template #header>
               <div class="sort-header-inline">
-                <span>销量</span>
+                <span class="table-header-text">销量</span>
                 <el-button 
-                  size="small" 
-                  :type="salesSortOrder ? 'primary' : 'default'"
+                  size="medium" 
+                  :type="salesSortOrder === 'asc' || salesSortOrder === 'desc' ? 'primary' : 'default'"
                   @click="toggleSalesSort"
-                  :icon="salesSortOrder === 'asc' ? 'ArrowUp' : 'ArrowDown'"
                 >
                   {{ salesSortOrder === 'asc' ? '升序' : salesSortOrder === 'desc' ? '降序' : '排序' }}
                 </el-button>
@@ -108,7 +154,10 @@
               <span>{{ row.sales }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="320">
+          <el-table-column width="320">
+            <template #header>
+              <span class="table-header-text">操作</span>
+            </template>
             <template #default="{ row }">
               <el-button size="small" type="primary" @click="editCoffee(row)">编辑</el-button>
               <el-button size="small" :type="row.status === '1' ? 'info' : 'success'" @click="toggleStatus(row)">
@@ -279,6 +328,8 @@ export default {
     const editFormRef = ref()
     const stockSortOrder = ref('') // '', 'asc', 'desc'
     const salesSortOrder = ref('') // '', 'asc', 'desc'
+    const searchKeyword = ref('') // 搜索关键词
+    const selectedCategory = ref('') // 选定的类别
     
     // 登录状态相关
     const isLoggedIn = ref(false)
@@ -362,13 +413,8 @@ export default {
         const response = await getAllCoffeeForAdmin()
         if (response.code === 200) {
           originalCoffeeList.value = response.data
-          // 如果当前没有激活的排序，则显示原始数据
-          if (stockSortOrder.value === '' && salesSortOrder.value === '') {
-            coffeeList.value = [...originalCoffeeList.value]
-          } else {
-            // 如果有激活的排序，则应用排序
-            applyCurrentSort()
-          }
+          // 应用当前的过滤和排序
+          applyCurrentSort()
         } else {
           ElMessage.error(response.message)
         }
@@ -593,36 +639,84 @@ export default {
 
     // 切换库存排序
     const toggleStockSort = () => {
-      // 如果当前是升序，则切换为降序；如果是降序，则清除排序；否则设置为升序
-      if (stockSortOrder.value === 'asc') {
+      // 按照无排序 -> 升序 -> 降序 -> 无排序 的顺序循环切换
+      if (stockSortOrder.value === '') {
+        stockSortOrder.value = 'asc'
+      } else if (stockSortOrder.value === 'asc') {
         stockSortOrder.value = 'desc'
       } else if (stockSortOrder.value === 'desc') {
         stockSortOrder.value = ''
-      } else {
-        stockSortOrder.value = 'asc'
       }
       // 如果按库存排序，则清空销量排序状态
       if (stockSortOrder.value) {
         salesSortOrder.value = ''
+      } else {
+        // 如果切换回无排序状态，也清空销量排序
+        if (!stockSortOrder.value) {
+          salesSortOrder.value = ''
+        }
       }
       applyCurrentSort()
     }
 
     // 切换销量排序
     const toggleSalesSort = () => {
-      // 如果当前是升序，则切换为降序；如果是降序，则清除排序；否则设置为升序
-      if (salesSortOrder.value === 'asc') {
+      // 按照无排序 -> 升序 -> 降序 -> 无排序 的顺序循环切换
+      if (salesSortOrder.value === '') {
+        salesSortOrder.value = 'asc'
+      } else if (salesSortOrder.value === 'asc') {
         salesSortOrder.value = 'desc'
       } else if (salesSortOrder.value === 'desc') {
         salesSortOrder.value = ''
-      } else {
-        salesSortOrder.value = 'asc'
       }
       // 如果按销量排序，则清空库存排序状态
       if (salesSortOrder.value) {
         stockSortOrder.value = ''
+      } else {
+        // 如果切换回无排序状态，也清空库存排序
+        if (!salesSortOrder.value) {
+          stockSortOrder.value = ''
+        }
       }
       applyCurrentSort()
+    }
+
+    // 监听搜索关键词变化
+    const onSearchChange = () => {
+      if (searchKeyword.value) {
+        // 如果搜索框有内容，清空类别筛选
+        selectedCategory.value = ''
+      }
+      applyCurrentSort()
+    }
+
+    // 监听类别变化
+    const onCategoryChange = () => {
+      if (selectedCategory.value) {
+        // 如果选择了类别，清空搜索框
+        searchKeyword.value = ''
+      }
+      applyCurrentSort()
+    }
+    
+    // 过滤数据
+    const filterData = (list) => {
+      let filteredList = [...list]
+      
+      // 按搜索关键词过滤（只匹配咖啡名称）
+      if (searchKeyword.value) {
+        filteredList = filteredList.filter(item => 
+          item.name.toLowerCase().includes(searchKeyword.value.toLowerCase())
+        )
+      }
+      // 按类别筛选（只有在没有搜索关键词时才应用）
+      else if (selectedCategory.value) {
+        filteredList = filteredList.filter(item => 
+          item.category === selectedCategory.value
+        )
+      }
+      
+      return filteredList
     }
 
     // 应用当前排序
@@ -630,6 +724,9 @@ export default {
       if (!originalCoffeeList.value || originalCoffeeList.value.length === 0) return
 
       let sortedList = [...originalCoffeeList.value]
+      
+      // 先应用过滤条件
+      sortedList = filterData(sortedList)
 
       if (stockSortOrder.value) {
         sortedList.sort((a, b) => {
@@ -648,7 +745,6 @@ export default {
           }
         })
       }
-
       coffeeList.value = sortedList
     }
 
@@ -690,6 +786,12 @@ export default {
       toggleSalesSort,
       applyCurrentSort,
       clearSort,
+      // 搜索和筛选相关
+      searchKeyword,
+      selectedCategory,
+      filterData,
+      onSearchChange,
+      onCategoryChange,
       // 登录状态相关
       isLoggedIn,
       userInfo
@@ -747,6 +849,22 @@ export default {
 
 .operation-buttons {
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.filter-header-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-header-inline .el-select {
+  margin-left: 10px;
+}
+
+.table-header-text {
+  font-size: 16px; /* 您可以修改这个值来控制字体大小 */
 }
 
 .avatar-uploader {
