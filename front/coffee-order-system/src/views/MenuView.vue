@@ -19,65 +19,92 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <!-- 分类导航 -->
-        <el-tabs v-model="activeCategory" @tab-change="onCategoryChange" class="category-tabs">
-          <el-tab-pane label="全部" name="all"></el-tab-pane>
-          <el-tab-pane label="经典意式" name="经典意式"></el-tab-pane>
-          <el-tab-pane label="风味拿铁" name="风味拿铁"></el-tab-pane>
-          <el-tab-pane label="风味美式" name="风味美式"></el-tab-pane>
-          <el-tab-pane label="奶咖" name="奶咖"></el-tab-pane>
-          <el-tab-pane label="燕麦系列" name="燕麦系列"></el-tab-pane>
-          <el-tab-pane label="单品豆SOE" name="单品豆SOE"></el-tab-pane>
-          <el-tab-pane label="其他" name="其他"></el-tab-pane>
-        </el-tabs>
+        <el-container>
+          <!-- 左侧分类导航 -->
+          <el-aside width="200px" class="category-aside">
+            <el-menu
+              :default-active="activeCategory"
+              class="category-menu"
+              @select="onCategoryChange"
+            >
+              <el-menu-item index="经典意式">经典意式</el-menu-item>
+              <el-menu-item index="风味拿铁">风味拿铁</el-menu-item>
+              <el-menu-item index="风味美式">风味美式</el-menu-item>
+              <el-menu-item index="奶咖">奶咖</el-menu-item>
+              <el-menu-item index="燕麦系列">燕麦系列</el-menu-item>
+              <el-menu-item index="单品豆SOE">单品豆SOE</el-menu-item>
+              <el-menu-item index="其他">其他</el-menu-item>
+            </el-menu>
+          </el-aside>
 
-        <!-- 咖啡列表 -->
-        <el-row :gutter="20">
-          <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="coffee in filteredCoffees" :key="coffee.id">
-            <el-card class="coffee-card">
-              <img :src="coffee.coffeeImage" class="coffee-image" alt="咖啡图片" />
-              <div class="coffee-info">
-                <h3>{{ coffee.name }}</h3>
-                <p class="description">{{ coffee.description }}</p>
-                <p class="price">¥{{ coffee.price }}</p>
-                <p class="stock">剩余数量: {{ coffee.stock }}</p>
-                <div class="customization-options">
-                  <div class="option-group">
-                    <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="medium">
-                      <el-radio-button :label="1">正常糖</el-radio-button>
-                      <el-radio-button :label="2">少糖</el-radio-button>
-                      <el-radio-button :label="3">不加糖</el-radio-button>
-                    </el-radio-group>
-                  </div>
-                  <div class="option-group">
-                    <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="medium">
-                      <el-radio-button :label="1">烫</el-radio-button>
-                      <el-radio-button :label="2">温热</el-radio-button>
-                      <el-radio-button :label="3">少冰</el-radio-button>
-                      <el-radio-button :label="4">正常冰</el-radio-button>
-                    </el-radio-group>
-                  </div>
-                </div>
-                <div class="add-to-cart">
-                  <el-input-number 
-                    v-model="selectedOptions[coffee.id].quantity" 
-                    :min="1" 
-                    :max="coffee.stock"
-                    size="medium"
-                  />
-                  <el-button 
-                    type="primary" 
-                    size="large" 
-                    @click="addToCart(coffee)"
-                    :disabled="coffee.stock <= 0"
-                  >
-                    加入购物车
-                  </el-button>
+          <!-- 右侧咖啡列表 -->
+          <el-main class="coffee-main">
+            <!-- 按类别展示咖啡 -->
+            <div v-for="category in ['经典意式', '风味拿铁', '风味美式', '奶咖', '燕麦系列', '单品豆SOE', '其他']" :key="category">
+              <div v-if="getCoffeesByCategory(category).length > 0" class="category-section" :id="'category-' + category">
+                <h2 class="category-title">{{ category }}</h2>
+                <div v-for="coffee in getCoffeesByCategory(category)" :key="coffee.id">
+                  <el-card class="horizontal-coffee-card">
+                    <div class="horizontal-card-content">
+                      <div class="coffee-image-container">
+                        <img :src="coffee.coffeeImage" class="horizontal-coffee-image" alt="咖啡图片" />
+                      </div>
+                      <div class="horizontal-coffee-info">
+                        <div class="info-and-controls-container">
+                          <div class="left-side">
+                            <h3 class="coffee-name">{{ coffee.name }}</h3>
+                            <p class="description">{{ coffee.description }}</p>
+                            <p class="stock">剩余: {{ coffee.stock }}</p>
+                          </div>
+                          <div class="right-side">
+                            <p class="price">¥{{ coffee.price }}</p>
+                            <div class="customization-options">
+                              <div class="option-group">
+                                <div class="option-controls">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="medium">
+                                    <el-radio-button :label="1">正常糖</el-radio-button>
+                                    <el-radio-button :label="2">少糖</el-radio-button>
+                                    <el-radio-button :label="3">不加糖</el-radio-button>
+                                  </el-radio-group>
+                                </div>
+                              </div>
+                              <div class="option-group">
+                                <div class="option-controls">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="medium">
+                                    <el-radio-button :label="1">烫</el-radio-button>
+                                    <el-radio-button :label="2">温热</el-radio-button>
+                                    <el-radio-button :label="3">少冰</el-radio-button>
+                                    <el-radio-button :label="4">正常冰</el-radio-button>
+                                  </el-radio-group>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="add-to-cart">
+                              <el-input-number 
+                                v-model="selectedOptions[coffee.id].quantity" 
+                                :min="1" 
+                                :max="coffee.stock"
+                                size="medium"
+                              />
+                              <el-button 
+                                type="primary" 
+                                @click="addToCart(coffee)"
+                                :disabled="coffee.stock <= 0"
+                                size="large"
+                              >
+                                加入购物车
+                              </el-button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </el-card>
                 </div>
               </div>
-            </el-card>
-          </el-col>
-        </el-row>
+            </div>
+          </el-main>
+        </el-container>
       </el-main>
 
       <!-- 底部 -->
@@ -146,42 +173,20 @@ export default {
       }
     }
 
-    const onCategoryChange = async (category) => {
-      try {
-        let response
-        if (category === 'all') {
-          response = await getAllCoffee()
-        } else {
-          response = await getCoffeeByCategory(category)
+    const onCategoryChange = (category) => {
+      activeCategory.value = category
+      // 滚动到对应分类的位置
+      setTimeout(() => {
+        const element = document.getElementById('category-' + category)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
-        
-        if (response.code === 200) {
-          coffees.value = response.data
-          // 初始化选项
-          coffees.value.forEach(coffee => {
-            if (!selectedOptions.value[coffee.id]) {
-              selectedOptions.value[coffee.id] = {
-                quantity: 1,
-                sweet: 1, // 默认正常糖
-                temperature: 1 // 默认烫
-              }
-            }
-          })
-        } else {
-          ElMessage.error(response.message)
-        }
-      } catch (error) {
-        console.error('加载咖啡列表失败:', error)
-        ElMessage.error('加载咖啡列表失败')
-      }
+      }, 100)
     }
 
-    const filteredCoffees = computed(() => {
-      if (activeCategory.value === 'all') {
-        return coffees.value
-      }
-      return coffees.value.filter(coffee => coffee.category === activeCategory.value)
-    })
+    const getCoffeesByCategory = (category) => {
+      return coffees.value.filter(coffee => coffee.category === category)
+    }
 
     const addToCart = async (coffee) => {
       if (!isLoggedIn.value) {
@@ -230,9 +235,9 @@ export default {
       isLoggedIn,
       userInfo,
       selectedOptions,
-      filteredCoffees,
       onCategoryChange,
-      addToCart
+      addToCart,
+      getCoffeesByCategory
     }
   }
 }
@@ -273,27 +278,218 @@ export default {
   margin-bottom: 20px;
 }
 
+.category-aside {
+  background-color: #f5f5f5;
+  padding: 0;
+  max-height: calc(100vh - 160px); /* 限制最大高度 */
+  position: fixed;
+  left: 0;
+  top: 138px; /* 调整以避开头部 */
+  z-index: 100;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #eee;
+  width: 200px;
+}
+
+.category-menu {
+  border-right: none;
+  background-color: transparent;
+}
+
+.category-menu .el-menu-item {
+  height: 50px;
+  line-height: 50px;
+  font-size: 16px;
+  color: #666;
+  margin: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.category-menu .el-menu-item:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.category-menu .el-menu-item.is-active {
+  background-color: #8bcbed;
+  color: white;
+  font-weight: bold;
+}
+
+.coffee-main {
+  padding: 20px;
+  margin-left: 220px; /* 为左侧固定导航留出空间 */
+}
+
+.category-section {
+  margin-bottom: 40px;
+}
+
+.category-title {
+  font-size: 26px;
+  color: #333;
+  border-bottom: 3px solid #e0dedd;
+  padding-bottom: 12px;
+  margin-bottom: 25px;
+  font-weight: bold;
+}
+
+.horizontal-coffee-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 260px;
+}
+
+.horizontal-coffee-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.horizontal-card-content {
+  display: flex;
+  align-items: center;
+  min-height: 180px;
+}
+
+.coffee-image-container {
+  flex: 0 0 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.horizontal-coffee-image {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+
+.horizontal-coffee-info {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  min-height: 160px;
+}
+
+.info-and-controls-container {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+}
+
+.left-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-side {
+  flex: 0 0 300px; /* 右侧固定宽度以容纳控件 */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  padding-top: 35px; /* 为浮动的价格留出空间 */
+  padding-right: 10px; /* 避免价格与右边框重叠 */
+}
+
+.coffee-name {
+  margin: 0;
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.description {
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  flex: 1;
+}
+
+.stock {
+  color: #27ae60;
+  font-size: 16px;
+  margin: 0 0 15px 0;
+}
+
+.price {
+  color: #e74c3c;
+  font-weight: bold;
+  font-size: 50px;
+  margin: 0 0 15px 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+
+.customization-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-label {
+  font-size: 16px;
+  color: #555;
+  white-space: nowrap;
+  width: 60px;
+}
+
+.option-controls {
+  flex: 1;
+}
+
+.add-to-cart {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: auto; /* 将按钮推到底部 */
+}
+
+.add-to-cart .el-input-number {
+  width: 120px;
+}
+
+.add-to-cart .el-button {
+  font-size: 16px;
+  padding: 10px 20px;
+}
+
 .coffee-card {
-  margin-bottom: 10px; /* 减小卡片自身的下边距 */
-  margin-left: 8px;
-  margin-right: 8px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 12px; /* 增加圆角 */
-  overflow: hidden; /* 确保内容也遵循圆角 */
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 添加行间距控制 */
-.el-row :deep(.el-col) {
-  margin-bottom: 25px; /* 控制每行之间的间距 */
+.coffee-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
 }
 
 .coffee-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  border-radius: 12px 12px 0 0; /* 与容器圆角匹配 */
+  border-radius: 8px 8px 0 0;
 }
 
 .coffee-info {
@@ -306,54 +502,31 @@ export default {
 .coffee-info h3 {
   margin: 0 0 10px 0;
   font-size: 18px;
-  color: #333;
+  font-weight: bold;
+}
+
+.coffee-info p {
+  margin: 5px 0;
+  font-size: 14px;
 }
 
 .description {
   color: #666;
-  font-size: 14px;
-  margin: 5px 0;
   flex-grow: 1;
 }
 
 .price {
-  font-size: 20px;
   color: #e74c3c;
   font-weight: bold;
-  margin: 5px 0;
+  font-size: 16px;
 }
 
 .stock {
-  color: #999;
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.customization-options {
-  margin: 10px 0;
+  color: #27ae60;
 }
 
 .option-group {
   margin-bottom: 8px;
-}
-
-.option-group span {
-  display: inline-block;
-  width: 40px;
-  font-size: 12px;
-  color: #666;
-  margin-right: 5px;
-}
-
-.add-to-cart {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-}
-
-.add-to-cart .el-input-number {
-  width: 100px;
 }
 
 .footer {
