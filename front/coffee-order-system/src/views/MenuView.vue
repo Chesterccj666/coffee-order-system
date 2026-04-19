@@ -22,6 +22,14 @@
         <el-container>
           <!-- 左侧分类导航 -->
           <el-aside width="200px" class="category-aside">
+            <div class="search-box">
+              <el-input 
+                v-model="searchKeyword" 
+                placeholder="搜索咖啡名称" 
+                clearable
+                @input="onSearchChange"
+              />
+            </div>
             <el-menu
               :default-active="activeCategory"
               class="category-menu"
@@ -39,11 +47,12 @@
 
           <!-- 右侧咖啡列表 -->
           <el-main class="coffee-main">
-            <!-- 按类别展示咖啡 -->
-            <div v-for="category in ['经典意式', '风味拿铁', '风味美式', '奶咖', '燕麦系列', '单品豆SOE', '其他']" :key="category">
-              <div v-if="getCoffeesByCategory(category).length > 0" class="category-section" :id="'category-' + category">
-                <h2 class="category-title">{{ category }}</h2>
-                <div v-for="coffee in getCoffeesByCategory(category)" :key="coffee.id">
+            <!-- 按类别展示咖啡或按搜索结果展示 -->
+            <div v-if="searchKeyword">
+              <!-- 搜索结果展示 -->
+              <div class="category-section">
+                <h2 class="category-title">搜索结果</h2>
+                <div v-for="coffee in getCoffeesBySearch()" :key="coffee.id">
                   <el-card class="horizontal-coffee-card">
                     <div class="horizontal-card-content">
                       <div class="coffee-image-container">
@@ -60,8 +69,9 @@
                             <p class="price">¥{{ coffee.price }}</p>
                             <div class="customization-options">
                               <div class="option-group">
+                                <span class="option-label">甜度:</span>
                                 <div class="option-controls">
-                                  <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="medium">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="small">
                                     <el-radio-button :label="1">正常糖</el-radio-button>
                                     <el-radio-button :label="2">少糖</el-radio-button>
                                     <el-radio-button :label="3">不加糖</el-radio-button>
@@ -69,8 +79,9 @@
                                 </div>
                               </div>
                               <div class="option-group">
+                                <span class="option-label">温度:</span>
                                 <div class="option-controls">
-                                  <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="medium">
+                                  <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="small">
                                     <el-radio-button :label="1">烫</el-radio-button>
                                     <el-radio-button :label="2">温热</el-radio-button>
                                     <el-radio-button :label="3">少冰</el-radio-button>
@@ -84,13 +95,12 @@
                                 v-model="selectedOptions[coffee.id].quantity" 
                                 :min="1" 
                                 :max="coffee.stock"
-                                size="medium"
+                                size="small"
                               />
                               <el-button 
                                 type="primary" 
                                 @click="addToCart(coffee)"
                                 :disabled="coffee.stock <= 0"
-                                size="large"
                               >
                                 加入购物车
                               </el-button>
@@ -100,6 +110,76 @@
                       </div>
                     </div>
                   </el-card>
+                </div>
+                <div v-if="getCoffeesBySearch().length === 0" class="no-results">
+                   <p>未找到匹配的咖啡</p>
+                 </div>
+              </div>
+            </div>
+            <div v-else>
+              <!-- 按类别展示咖啡 -->
+              <div v-for="category in ['经典意式', '风味拿铁', '风味美式', '奶咖', '燕麦系列', '单品豆SOE', '其他']" :key="category">
+                <div v-if="getCoffeesByCategory(category).length > 0" class="category-section" :id="'category-' + category">
+                  <h2 class="category-title">{{ category }}</h2>
+                  <div v-for="coffee in getCoffeesByCategory(category)" :key="coffee.id">
+                    <el-card class="horizontal-coffee-card">
+                      <div class="horizontal-card-content">
+                        <div class="coffee-image-container">
+                          <img :src="coffee.coffeeImage" class="horizontal-coffee-image" alt="咖啡图片" />
+                        </div>
+                        <div class="horizontal-coffee-info">
+                          <div class="info-and-controls-container">
+                            <div class="left-side">
+                              <h3 class="coffee-name">{{ coffee.name }}</h3>
+                              <p class="description">{{ coffee.description }}</p>
+                              <p class="stock">剩余: {{ coffee.stock }}</p>
+                            </div>
+                            <div class="right-side">
+                              <p class="price">¥{{ coffee.price }}</p>
+                              <div class="customization-options">
+                                <div class="option-group">
+                                  <span class="option-label">甜度:</span>
+                                  <div class="option-controls">
+                                    <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="small">
+                                      <el-radio-button :label="1">正常糖</el-radio-button>
+                                      <el-radio-button :label="2">少糖</el-radio-button>
+                                      <el-radio-button :label="3">不加糖</el-radio-button>
+                                    </el-radio-group>
+                                  </div>
+                                </div>
+                                <div class="option-group">
+                                  <span class="option-label">温度:</span>
+                                  <div class="option-controls">
+                                    <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="small">
+                                      <el-radio-button :label="1">烫</el-radio-button>
+                                      <el-radio-button :label="2">温热</el-radio-button>
+                                      <el-radio-button :label="3">少冰</el-radio-button>
+                                      <el-radio-button :label="4">正常冰</el-radio-button>
+                                    </el-radio-group>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="add-to-cart">
+                                <el-input-number 
+                                  v-model="selectedOptions[coffee.id].quantity" 
+                                  :min="1" 
+                                  :max="coffee.stock"
+                                  size="small"
+                                />
+                                <el-button 
+                                  type="primary" 
+                                  @click="addToCart(coffee)"
+                                  :disabled="coffee.stock <= 0"
+                                >
+                                  加入购物车
+                                </el-button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </el-card>
+                  </div>
                 </div>
               </div>
             </div>
@@ -134,6 +214,7 @@ export default {
     const userInfo = ref({})
 
     const selectedOptions = ref({})
+    const searchKeyword = ref('')
 
     onMounted(() => {
       loadCoffees()
@@ -175,6 +256,8 @@ export default {
 
     const onCategoryChange = (category) => {
       activeCategory.value = category
+      // 清空搜索关键词
+      searchKeyword.value = ''
       // 滚动到对应分类的位置
       setTimeout(() => {
         const element = document.getElementById('category-' + category)
@@ -184,8 +267,31 @@ export default {
       }, 100)
     }
 
+    const onSearchChange = () => {
+      // 当进行搜索时，清空分类选择
+      activeCategory.value = ''
+    }
+
     const getCoffeesByCategory = (category) => {
       return coffees.value.filter(coffee => coffee.category === category)
+    }
+
+    const filterCoffees = (coffeesList) => {
+      let filtered = coffeesList
+      
+      // 如果有搜索关键词，按名称进行模糊匹配
+      if (searchKeyword.value) {
+        const keyword = searchKeyword.value.toLowerCase()
+        filtered = filtered.filter(coffee => 
+          coffee.name.toLowerCase().includes(keyword)
+        )
+      }
+      
+      return filtered
+    }
+
+    const getCoffeesBySearch = () => {
+      return filterCoffees(coffees.value)
     }
 
     const addToCart = async (coffee) => {
@@ -235,9 +341,12 @@ export default {
       isLoggedIn,
       userInfo,
       selectedOptions,
+      searchKeyword,
       onCategoryChange,
+      onSearchChange,
       addToCart,
-      getCoffeesByCategory
+      getCoffeesByCategory,
+      getCoffeesBySearch
     }
   }
 }
@@ -280,7 +389,7 @@ export default {
 
 .category-aside {
   background-color: #f5f5f5;
-  padding: 0;
+  padding: 20px 0;
   max-height: calc(100vh - 160px); /* 限制最大高度 */
   position: fixed;
   left: 0;
@@ -290,6 +399,10 @@ export default {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   border-right: 1px solid #eee;
   width: 200px;
+}
+
+.search-box {
+  padding: 0 12px 12px;
 }
 
 .category-menu {
