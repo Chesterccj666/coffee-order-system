@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 店员版</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 待处理订单</h1>
           <div class="nav-links">
             <!-- 店员功能 -->
             <el-button type="text" @click="$router.push('/staff')">待处理订单</el-button>
@@ -16,8 +16,6 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <h2 class="page-title">待处理订单</h2>
-        
         <!-- 左右两栏布局 -->
         <div class="orders-container">
           <!-- 左侧：待接单订单 -->

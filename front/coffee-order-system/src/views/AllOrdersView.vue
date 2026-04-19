@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 店员版</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 全部订单</h1>
           <div class="nav-links">
             <el-button type="text" @click="$router.push('/staff')">待处理订单</el-button>
             <el-button type="text" @click="$router.push('/staff/all-orders')">全部订单</el-button>
@@ -15,8 +15,6 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <h2 class="page-title">全部订单</h2>
-        
         <!-- 日期筛选 -->
         <div class="date-filter">
           <span>选择日期：</span>

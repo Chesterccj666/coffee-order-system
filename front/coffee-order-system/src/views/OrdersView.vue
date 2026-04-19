@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 我的订单</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
@@ -18,9 +18,7 @@
       </el-header>
 
       <!-- 主要内容 -->
-      <el-main class="main-content">
-        <h2 class="page-title">我的订单</h2>
-        
+      <el-main class="main-content">      
         <el-tabs v-model="activeTab" @tab-change="loadOrders">
           <el-tab-pane label="全部订单" name="all"></el-tab-pane>
           <el-tab-pane label="待接单" name="pending"></el-tab-pane>

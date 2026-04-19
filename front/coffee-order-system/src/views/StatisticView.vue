@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 数据统计</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/menu')">菜单</el-button>
@@ -25,8 +25,6 @@
 
       <!-- 主要内容 -->
       <el-main class="main-content">
-        <h2 class="page-title">数据统计</h2>
-        
         <!-- 统计卡片 -->
         <div class="stats-cards">
           <el-card class="stat-card">

@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <div class="header">
         <div class="header-content">
-          <h1 class="logo">☕ 咖啡点单系统</h1>
+          <h1 class="logo">☕ 咖啡点单系统 - 首页</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button v-if="isLoggedIn && userInfo.role === 1" type="text" @click="$router.push('/menu')">菜单</el-button>
