@@ -36,10 +36,16 @@ public interface CartMapper {
     int deleteById(Integer id);
 
     /**
-     * 【判断是否已添加】查询用户购物车中是否已有某咖啡
+     * 【判断是否已添加】查询用户购物车中是否已有某咖啡（仅按咖啡ID判断）
      */
     @Select("SELECT * FROM cart WHERE user_id = #{userId} AND coffee_id = #{coffeeId}")
     Cart selectByUserAndCoffee(@Param("userId") Integer userId, @Param("coffeeId") Integer coffeeId);
+    
+    /**
+     * 【判断是否已添加】查询用户购物车中是否已有某规格的咖啡（考虑甜度和温度）
+     */
+    @Select("SELECT * FROM cart WHERE user_id = #{userId} AND coffee_id = #{coffeeId} AND sweet = #{sweet} AND temperature = #{temperature}")
+    Cart selectByUserAndCoffeeWithSpecs(@Param("userId") Integer userId, @Param("coffeeId") Integer coffeeId, @Param("sweet") Integer sweet, @Param("temperature") Integer temperature);
 
     /**
      * 【下单后清空】根据用户id清空购物车

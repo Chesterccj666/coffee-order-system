@@ -32,15 +32,21 @@ public class CartServiceImpl implements CartService {
         cart.setCoffeeName(coffee.getName());
         cart.setCoffeeImage(coffee.getCoffeeImage());
         
-        // 检查是否已存在相同的商品（相同用户、相同咖啡、相同规格）
-        Cart existingCart = cartMapper.selectByUserAndCoffee(cart.getUserId(), cart.getCoffeeId());
+        // 检查是否已存在相同规格的商品（相同用户、相同咖啡、相同甜度、相同温度）
+        Cart existingCart = cartMapper.selectByUserAndCoffeeWithSpecs(
+            cart.getUserId(), 
+            cart.getCoffeeId(),
+            cart.getSweet(),
+            cart.getTemperature()
+        );
+        
         if (existingCart != null) {
-            // 如果已存在，则更新数量
+            // 如果已存在相同规格的商品，则更新数量
             int newQuantity = existingCart.getQuantity() + cart.getQuantity();
             int result = cartMapper.updateQuantity(existingCart.getId(), newQuantity);
             return result > 0;
         } else {
-            // 如果不存在，则插入新的购物车项
+            // 如果不存在相同规格的商品，则插入新的购物车项
             int result = cartMapper.insert(cart);
             return result > 0;
         }
