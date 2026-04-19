@@ -805,6 +805,11 @@ export default {
   background-color: #fff;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .sort-header-inline {
@@ -840,6 +845,7 @@ export default {
 .main-content {
   padding: 20px;
   background-color: #f5f5f5;
+  margin-top: 50px;
 }
 
 .page-title {

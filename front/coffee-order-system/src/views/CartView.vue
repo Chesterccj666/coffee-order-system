@@ -278,6 +278,11 @@ export default {
   background-color: #fff;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .header-content {
@@ -303,6 +308,7 @@ export default {
   padding: 30px;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
   min-height: calc(100vh - 140px);
+  margin-top: 50px;
 }
 
 .cart-wrapper {
