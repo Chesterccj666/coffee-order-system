@@ -4,7 +4,7 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-content">
-          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统</h1>
+          <h1 class="logo" @click="$router.push('/')">☕ 咖啡点单系统 - 菜单</h1>
           <div class="nav-links">
             <!-- 顾客功能 -->
             <el-button type="text" @click="$router.push('/menu')">菜单</el-button>
@@ -43,16 +43,14 @@
                 <p class="stock">剩余数量: {{ coffee.stock }}</p>
                 <div class="customization-options">
                   <div class="option-group">
-                    <span>甜度:</span>
-                    <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="small">
+                    <el-radio-group v-model="selectedOptions[coffee.id].sweet" size="medium">
                       <el-radio-button :label="1">正常糖</el-radio-button>
                       <el-radio-button :label="2">少糖</el-radio-button>
                       <el-radio-button :label="3">不加糖</el-radio-button>
                     </el-radio-group>
                   </div>
                   <div class="option-group">
-                    <span>温度:</span>
-                    <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="small">
+                    <el-radio-group v-model="selectedOptions[coffee.id].temperature" size="medium">
                       <el-radio-button :label="1">烫</el-radio-button>
                       <el-radio-button :label="2">温热</el-radio-button>
                       <el-radio-button :label="3">少冰</el-radio-button>
@@ -65,11 +63,11 @@
                     v-model="selectedOptions[coffee.id].quantity" 
                     :min="1" 
                     :max="coffee.stock"
-                    size="small"
+                    size="medium"
                   />
                   <el-button 
                     type="primary" 
-                    size="small" 
+                    size="large" 
                     @click="addToCart(coffee)"
                     :disabled="coffee.stock <= 0"
                   >
