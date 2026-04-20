@@ -252,7 +252,7 @@
             <div class="cart-total" v-if="miniCartItems.length > 0">
               合计：¥{{ miniCartTotal.toFixed(2) }}
             </div>
-            <el-button type="primary" size="large" @click="$router.push('/cart')">去支付</el-button>
+            <el-button v-if="miniCartItems.length > 0" type="primary" size="medium" @click="$router.push('/cart')">去支付</el-button>
           </div>
         </div>
         <template #reference>
