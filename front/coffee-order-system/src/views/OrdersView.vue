@@ -17,16 +17,49 @@
         </div>
       </el-header>
 
-      <!-- 主要内容 -->
-      <el-main class="main-content">      
-        <el-tabs v-model="activeTab" @tab-change="loadOrders">
-          <el-tab-pane label="全部订单" name="all"></el-tab-pane>
-          <el-tab-pane label="待接单" name="pending"></el-tab-pane>
-          <el-tab-pane label="制作中" name="processing"></el-tab-pane>
-          <el-tab-pane label="已完成" name="completed"></el-tab-pane>
-          <el-tab-pane label="已取消" name="cancelled"></el-tab-pane>
-        </el-tabs>
+      <!-- 固定筛选栏 -->
+      <div class="fixed-filter-bar">
+        <div class="filter-tabs">
+          <div 
+            class="filter-tab" 
+            :class="{ active: activeTab === 'all' }"
+            @click="switchTab('all')"
+          >
+            全部订单
+          </div>
+          <div 
+            class="filter-tab" 
+            :class="{ active: activeTab === 'pending' }"
+            @click="switchTab('pending')"
+          >
+            待接单
+          </div>
+          <div 
+            class="filter-tab" 
+            :class="{ active: activeTab === 'processing' }"
+            @click="switchTab('processing')"
+          >
+            制作中
+          </div>
+          <div 
+            class="filter-tab" 
+            :class="{ active: activeTab === 'completed' }"
+            @click="switchTab('completed')"
+          >
+            已完成
+          </div>
+          <div 
+            class="filter-tab" 
+            :class="{ active: activeTab === 'cancelled' }"
+            @click="switchTab('cancelled')"
+          >
+            已取消
+          </div>
+        </div>
+      </div>
 
+      <!-- 主要内容 -->
+      <el-main class="main-content">
         <div class="orders-list">
           <el-card 
             class="order-card" 
@@ -134,6 +167,11 @@ export default {
         ElMessage.warning('请先登录')
         router.push('/login')
       }
+    }
+
+    const switchTab = (tabName) => {
+      activeTab.value = tabName
+      loadOrders()
     }
 
     const loadOrders = async () => {
@@ -278,6 +316,7 @@ export default {
       activeTab,
       isLoggedIn,
       userInfo,
+      switchTab,
       getStatusText,
       getStatusTagType,
       getSugarText,
@@ -325,7 +364,58 @@ export default {
 .main-content {
   padding: 20px;
   background-color: #f5f5f5;
-  margin-top: 40px;
+  margin-top: 120px; /* 增加边距以适应固定头部和固定筛选栏 */
+}
+
+/* 固定筛选栏样式 */
+.fixed-filter-bar {
+  background-color: #fff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 60px; /* 头部下方 */
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+}
+
+.filter-tabs {
+  display: flex;
+  width: fit-content;
+  max-width: 1600px; /* 限制最大宽度 */
+}
+
+.filter-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0 32px; /* 减少内边距 */
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px 15px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #606266;
+  border: 1px solid #dcdfe6;
+  white-space: nowrap; /* 防止文字换行 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 36px; /* 设置最小高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-tab.active {
+  background-color: #f5f5f5;
+  color: #333;
+  border-color: #dcdfe6;
+}
+
+.filter-tab:hover {
+  background-color: #ecf5ff;
+  border-color: #b3d8ff;
 }
 
 .page-title {
