@@ -56,7 +56,7 @@
             <el-radio :label="3">管理员</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item>
+        <div class="button-container">
           <el-button 
             type="primary" 
             @click="handleRegister" 
@@ -65,7 +65,7 @@
           >
             注册
           </el-button>
-        </el-form-item>
+        </div>
         <div class="login-link">
           已有账号？<el-button type="text" @click="$router.push('/login')">立即登录</el-button>
         </div>
@@ -255,6 +255,12 @@ export default {
   text-align: center;
   margin-bottom: 30px;
   color: #333;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .register-btn {
