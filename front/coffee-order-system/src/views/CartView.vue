@@ -23,7 +23,7 @@
           <el-card class="cart-card">            
             <div v-if="cartItems.length === 0" class="empty-cart">
               <el-empty description="购物车为空" />
-              <el-button type="primary" @click="$router.push('/menu')">去添加商品</el-button>
+              <el-button type="primary" size="large" @click="$router.push('/menu')">去添加商品</el-button>
             </div>
             
             <div v-else>
@@ -79,7 +79,10 @@
                   <span>总计：</span>
                   <span class="total-price">¥{{ totalAmount.toFixed(2) }}</span>
                 </div>
-                <el-button type="primary" size="large" @click="checkout">去结算</el-button>
+                <div class="checkout-buttons">
+                  <el-button size="large" @click="$router.push('/menu')">返回菜单</el-button>
+                  <el-button type="primary" size="large" @click="checkout">确认支付</el-button>
+                </div>
               </div>
             </div>
           </el-card>
@@ -369,6 +372,11 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.checkout-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .total {

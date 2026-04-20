@@ -191,7 +191,79 @@
       </el-footer>
     </el-container>
 
-
+    <!-- 固定在底部的小购物车组件 -->
+    <div class="mini-cart" v-if="isLoggedIn && userInfo.role === 1">
+      <el-popover
+        placement="top"
+        title="购物车"
+        width="400"
+        trigger="click"
+        v-model:visible="showMiniCartPopover"
+      >
+        <div class="mini-cart-content">
+          <div v-if="miniCartItems.length === 0" class="empty-cart">
+            购物车为空
+          </div>
+          <div v-else class="cart-items">
+            <div 
+              class="cart-item" 
+              v-for="item in miniCartItems" 
+              :key="item.id"
+            >
+              <img :src="item.coffeeImage" class="item-image" alt="咖啡图片" />
+              <div class="item-info">
+                <div class="item-name">{{ item.coffeeName }}</div>
+                <div class="item-specs">
+                  <span class="spec">{{ getSugarText(item.sweet) }}</span>
+                  <span class="spec">{{ getTempText(item.temperature) }}</span>
+                </div>
+              </div>
+              <div class="item-quantity">
+                <el-button 
+                  @click="decreaseQuantity(item)"
+                  :disabled="item.quantity <= 1"
+                  size="small"
+                  circle
+                >
+                  -
+                </el-button>
+                <span class="quantity-value">{{ item.quantity }}</span>
+                <el-button 
+                  @click="increaseQuantity(item)"
+                  size="small"
+                  circle
+                >
+                  +
+                </el-button>
+              </div>
+              <div class="item-price">¥{{ (item.price * item.quantity).toFixed(2) }}</div>
+              <el-button 
+                class="delete-item-btn" 
+                type="danger" 
+                size="small" 
+                circle
+                @click="removeCartItem(item.id)"
+              >
+                <el-icon><Delete /></el-icon>
+              </el-button>
+            </div>
+          </div>
+          <div class="cart-actions">
+            <div class="cart-total" v-if="miniCartItems.length > 0">
+              合计：¥{{ miniCartTotal.toFixed(2) }}
+            </div>
+            <el-button type="primary" size="large" @click="$router.push('/cart')">去支付</el-button>
+          </div>
+        </div>
+        <template #reference>
+          <el-badge :value="miniCartItemCount" class="item" :hidden="miniCartItemCount === 0">
+            <el-button type="primary" circle class="mini-cart-btn">
+              <el-icon><ShoppingCart /></el-icon>
+            </el-button>
+          </el-badge>
+        </template>
+      </el-popover>
+    </div>
   </div>
 </template>
 
@@ -199,8 +271,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getAllCoffee, getCoffeeByCategory } from '@/api/coffee'
-import { addToCart as addCart } from '@/api/cart'
+import { getAllCoffee } from '@/api/coffee'
+import { addToCart as addCart, getUserCart, deleteCartItem, updateCartItemQuantity } from '@/api/cart'
+import { ShoppingCart, Delete } from '@element-plus/icons-vue'
 
 export default {
   name: 'MenuView',
@@ -213,10 +286,15 @@ export default {
 
     const selectedOptions = ref({})
     const searchKeyword = ref('')
+    const showMiniCartPopover = ref(false)
+    const miniCartItems = ref([])
+    const miniCartTotal = ref(0)
+    const miniCartItemCount = ref(0)
 
     onMounted(() => {
       loadCoffees()
       checkLoginStatus()
+      loadMiniCart()
     })
 
     const checkLoginStatus = () => {
@@ -322,12 +400,142 @@ export default {
         
         if (response.code === 200) {
           ElMessage.success(`已将 ${coffee.name} 添加到购物车！`)
+          // 更新小购物车
+          await loadMiniCart()
         } else {
           ElMessage.error(response.message)
         }
       } catch (error) {
         console.error('添加到购物车失败:', error)
         ElMessage.error('添加到购物车失败')
+      }
+    }
+
+    const loadMiniCart = async () => {
+      if (!isLoggedIn.value || !userInfo.value.id) {
+        return
+      }
+
+      try {
+        const response = await getUserCart(userInfo.value.id)
+        if (response.code === 200) {
+          miniCartItems.value = response.data.map(item => ({
+            ...item,
+            totalPrice: item.price * item.quantity
+          }))
+          
+          // 计算购物车总数量
+          miniCartItemCount.value = response.data.reduce((sum, item) => sum + item.quantity, 0)
+          
+          // 计算购物车总金额
+          miniCartTotal.value = response.data.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        } else {
+          console.error('加载购物车失败:', response.message)
+        }
+      } catch (error) {
+        console.error('加载购物车失败:', error)
+      }
+    }
+
+    const closeMiniCart = () => {
+      showMiniCartPopover.value = false
+    }
+
+    // 获取甜度文本
+    const getSugarText = (sweetValue) => {
+      switch(sweetValue) {
+        case 1: return '正常糖'
+        case 2: return '少糖'
+        case 3: return '不加糖'
+        default: return '正常糖'
+      }
+    }
+
+    // 获取温度文本
+    const getTempText = (tempValue) => {
+      switch(tempValue) {
+        case 1: return '烫'
+        case 2: return '温热'
+        case 3: return '少冰'
+        case 4: return '正常冰'
+        default: return '烫'
+      }
+    }
+
+    const removeCartItem = async (itemId) => {
+      try {
+        const response = await deleteCartItem(itemId)
+        if (response.code === 200) {
+          ElMessage.success('已从购物车中移除')
+          // 重新加载购物车
+          await loadMiniCart()
+        } else {
+          ElMessage.error(response.message)
+        }
+      } catch (error) {
+        console.error('移除购物车项目失败:', error)
+        ElMessage.error('移除购物车项目失败')
+      }
+    }
+
+    const decreaseQuantity = async (item) => {
+      if (item.quantity <= 1) {
+        return // 最少为1，不能再减少
+      }
+      
+      try {
+        // 这里需要调用更新购物车数量的API
+        // 需要先查找对应的购物车项ID
+        const response = await getUserCart(userInfo.value.id)
+        if (response.code === 200) {
+          const cartItem = response.data.find(cartItem => 
+            cartItem.coffeeId === item.coffeeId && 
+            cartItem.sweet === item.sweet && 
+            cartItem.temperature === item.temperature
+          )
+          
+          if (cartItem) {
+            // 调用更新数量的API，数量减1
+            const updateResponse = await updateCartItemQuantity(cartItem.id, item.quantity - 1)
+            if (updateResponse.code === 200) {
+              // 重新加载购物车
+              await loadMiniCart()
+            } else {
+              ElMessage.error(updateResponse.message)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('更新购物车数量失败:', error)
+        ElMessage.error('更新购物车数量失败')
+      }
+    }
+
+    const increaseQuantity = async (item) => {
+      try {
+        // 查找对应的购物车项ID
+        const response = await getUserCart(userInfo.value.id)
+        if (response.code === 200) {
+          const cartItem = response.data.find(cartItem => 
+            cartItem.coffeeId === item.coffeeId && 
+            cartItem.sweet === item.sweet && 
+            cartItem.temperature === item.temperature
+          )
+          
+          if (cartItem) {
+            // 调用更新数量的API，数量加1
+            const updateResponse = await updateCartItemQuantity(cartItem.id, item.quantity + 1)
+            if (updateResponse.code === 200) {
+              // 重新加载购物车
+              await loadMiniCart()
+            } else {
+              ElMessage.error(updateResponse.message)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('更新购物车数量失败:', error)
+        ElMessage.error('更新购物车数量失败')
       }
     }
 
@@ -340,9 +548,20 @@ export default {
       userInfo,
       selectedOptions,
       searchKeyword,
+      showMiniCartPopover,
+      miniCartItems,
+      miniCartTotal,
+      miniCartItemCount,
       onCategoryChange,
       onSearchChange,
       addToCart,
+      loadMiniCart,
+      closeMiniCart,
+      removeCartItem,
+      decreaseQuantity,
+      increaseQuantity,
+      getSugarText,
+      getTempText,
       getCoffeesByCategory,
       getCoffeesBySearch
     }
@@ -537,6 +756,182 @@ export default {
   color: #27ae60;
   font-size: 16px;
   margin: 0 0 15px 0;
+}
+
+.customization-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.option-controls {
+  flex: 1;
+}
+
+.add-to-cart {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: auto; /* 将按钮推到底部 */
+}
+
+.add-to-cart .el-input-number {
+  width: 120px;
+}
+
+.add-to-cart .el-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  width: 200px; /* 固定按钮宽度 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer {
+  background-color: #f5f5f5;
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  margin-top: auto;
+}
+
+/* 小购物车样式 */
+.mini-cart {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 1001;
+}
+
+.mini-cart-btn {
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mini-cart-content {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+.cart-items {
+  margin-bottom: 15px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-specs {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.spec {
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 10px;
+  color: #666;
+  min-width: 80px;
+  text-align: center;
+}
+
+.quantity-value {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 1000;
+}
+
+.item-price {
+  font-weight: 500;
+  color: #e74c3c;
+  min-width: 60px;
+  text-align: right;
+}
+
+.delete-item-btn {
+  margin-left: 10px;
+  width: 24px;
+  height: 24px;
+  padding: 5px;
+}
+
+.cart-total {
+  font-weight: bold;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  text-align: right;
+  color: #e74c3c;
+}
+
+.cart-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  margin-top: auto; /* 将按钮推到底部 */
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 15px 0 0 0;
 }
 
 
