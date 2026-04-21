@@ -131,6 +131,12 @@ public interface CoffeeMapper {
     int updateImageById(@Param("id") Integer id, @Param("coffeeImage") String coffeeImage);
     
     /**
+     * 【管理员功能】查询当前被推荐的咖啡数量
+     */
+    @Select("SELECT COUNT(*) FROM coffee WHERE recommend = '1'")
+    int selectRecommendedCount();
+    
+    /**
      * 【首页功能】查询过去七天内热销的咖啡及其销量
      */
     @Select("SELECT c.*, SUM(oi.quantity) as lastWeekSales FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 AND o.order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY c.id ORDER BY lastWeekSales DESC LIMIT #{limit}")

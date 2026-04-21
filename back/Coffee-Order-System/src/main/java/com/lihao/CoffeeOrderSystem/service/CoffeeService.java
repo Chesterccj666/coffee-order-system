@@ -83,6 +83,11 @@ public interface CoffeeService {
     Integer getTotalCoffeesSold();
     
     /**
+     * 获取当前被推荐的咖啡数量
+     */
+    int getRecommendedCount();
+    
+    /**
      * 更新咖啡图片路径
      */
     boolean updateCoffeeImage(Integer id, String coffeeImage);

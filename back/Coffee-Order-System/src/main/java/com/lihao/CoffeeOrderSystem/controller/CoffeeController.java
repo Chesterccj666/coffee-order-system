@@ -317,7 +317,11 @@ public class CoffeeController {
                 return new ResponseResult<>(500, "设置失败", null);
             }
         } catch (Exception e) {
-            return new ResponseResult<>(500, "设置失败：" + e.getMessage(), null);
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("推荐的咖啡数量已达上限")) {
+                return new ResponseResult<>(500, errorMessage, null);
+            }
+            return new ResponseResult<>(500, "设置失败：" + errorMessage, null);
         }
     }
 

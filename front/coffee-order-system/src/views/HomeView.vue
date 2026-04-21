@@ -251,6 +251,9 @@ export default {
           coffee.recommend = '1'
           // 重新加载热销咖啡列表
           loadTopSellingCoffees()
+        } else if (response.code === 500 && response.message.includes('推荐的咖啡数量已达上限')) {
+          // 特殊处理推荐数量达到上限的情况
+          ElMessage.error('推荐的咖啡数量已达上限（8个），无法再推荐更多咖啡')
         } else {
           ElMessage.error(response.message)
         }
