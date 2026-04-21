@@ -27,7 +27,6 @@
             <router-link v-if="isLoggedIn && userInfo.role === 1" to="/cart" class="nav-link active">
               <span class="nav-text">购物车</span>
               <span class="nav-underline"></span>
-              <span class="cart-badge" v-if="cartItems.length > 0">{{ cartItems.length }}</span>
             </router-link>
             <router-link v-if="isLoggedIn && userInfo.role === 1" to="/orders" class="nav-link">
               <span class="nav-text">我的订单</span>
