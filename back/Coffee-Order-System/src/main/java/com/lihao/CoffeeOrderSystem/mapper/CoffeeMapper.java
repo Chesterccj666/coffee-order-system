@@ -97,7 +97,7 @@ public interface CoffeeMapper {
     /**
      * 【管理员功能】查询销量最高的咖啡
      */
-    @Select("SELECT c.*, SUM(oi.quantity) as totalQuantity FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 GROUP BY c.id ORDER BY totalQuantity DESC LIMIT #{limit}")
+    @Select("SELECT c.*, SUM(oi.quantity) as totalQuantity FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 AND o.order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY c.id ORDER BY totalQuantity DESC LIMIT #{limit}")
     List<Coffee> selectTopSelling(@Param("limit") int limit);
     
     /**
@@ -129,4 +129,10 @@ public interface CoffeeMapper {
      */
     @Update("UPDATE coffee SET coffee_image = #{coffeeImage} WHERE id = #{id}")
     int updateImageById(@Param("id") Integer id, @Param("coffeeImage") String coffeeImage);
+    
+    /**
+     * 【首页功能】查询过去七天内热销的咖啡及其销量
+     */
+    @Select("SELECT c.*, SUM(oi.quantity) as lastWeekSales FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 AND o.order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY c.id ORDER BY lastWeekSales DESC LIMIT #{limit}")
+    List<Map<String, Object>> selectTopSellingLastWeek(@Param("limit") int limit);
 }

@@ -105,6 +105,11 @@ public class CoffeeServiceImpl implements CoffeeService {
     }
     
     @Override
+    public List<Map<String, Object>> getTopSellingLastWeek(int limit) {
+        return coffeeMapper.selectTopSellingLastWeek(limit);
+    }
+    
+    @Override
     public List<String> getAllCategories() {
         return coffeeMapper.selectAllCategories();
     }

@@ -37,14 +37,14 @@
           <el-card class="stat-card">
             <div class="stat-content">
               <div class="stat-number">{{ totalCoffeesSold }}</div>
-              <div class="stat-label">历史总销量</div>
+              <div class="stat-label">历史总销量（杯）</div>
             </div>
           </el-card>
           
           <el-card class="stat-card">
             <div class="stat-content">
               <div class="stat-number">¥{{ pastSevenDaysSales.toFixed(2) }}</div>
-              <div class="stat-label">过去七天销售额</div>
+              <div class="stat-label">过去七天总销售额</div>
             </div>
           </el-card>
         </div>
@@ -54,7 +54,7 @@
           <!-- 销售额统计图表 -->
           <el-card class="chart-card">
             <template #header>
-              <span class="chart-title">各类别销售额统计</span>
+              <span class="chart-title">各种咖啡历史总销售额统计</span>
             </template>
             <div ref="categorySalesChartRef" class="chart-container"></div>
           </el-card>
@@ -62,7 +62,7 @@
           <!-- 销量统计图表 -->
           <el-card class="chart-card">
             <template #header>
-              <span class="chart-title">各咖啡销量排行</span>
+              <span class="chart-title">各咖啡历史总销量排行</span>
             </template>
             <div ref="coffeeSalesChartRef" class="chart-container"></div>
           </el-card>
@@ -71,7 +71,7 @@
         <!-- 过去七天销售额统计 -->
         <el-card class="daily-sales-card">
           <template #header>
-            <span class="card-title">过去七天销售额统计</span>
+            <span class="card-title">过去七天销售额变化趋势</span>
           </template>
           <div ref="dailySalesChartRef" class="chart-container"></div>
         </el-card>

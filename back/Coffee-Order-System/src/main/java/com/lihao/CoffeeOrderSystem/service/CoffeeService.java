@@ -66,6 +66,11 @@ public interface CoffeeService {
     List<Map<String, Object>> getCategorySalesStats();
     
     /**
+     * 获取上周销量最高的咖啡
+     */
+    List<Map<String, Object>> getTopSellingLastWeek(int limit);
+    
+    /**
      * 获取所有不同的咖啡类别
      */
     List<String> getAllCategories();

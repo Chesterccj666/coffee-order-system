@@ -111,7 +111,7 @@
               <div class="coffee-info">
                 <h4>{{ coffee.name }}</h4>
                 <p class="price">¥{{ coffee.price }}</p>
-                <p class="sales">销量: {{ coffee.sales }} 杯</p>
+                <p class="sales">过去七天销量: {{ coffee.sales }} 杯</p>
                 <el-button 
                   :type="coffee.recommend === '1' ? 'info' : 'warning'"
                   :disabled="coffee.recommend === '1'"
@@ -166,9 +166,9 @@
 <script>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getRecommendedCoffee } from '@/api/coffee'
+import { getRecommendedCoffee, getTopSellingLastWeek } from '@/api/coffee'
 import { getOrdersByStatus, getAllOrdersByStatus } from '@/api/order'
-import { getTopSellingCoffee, setRecommend } from '@/api/admin'
+import { setRecommend } from '@/api/admin'
 
 export default {
   name: 'HomeView',
@@ -214,12 +214,24 @@ export default {
       }
     }
 
-    // 加载热销咖啡数据
+    // 加载热销咖啡数据（过去七天）
     const loadTopSellingCoffees = async () => {
       try {
-        const response = await getTopSellingCoffee(5)
+        const response = await getTopSellingLastWeek(5)
         if (response.code === 200) {
-          topSellingCoffees.value = response.data || []
+          // 处理返回的数据，将lastWeekSales字段映射到sales字段以便前端显示，并处理字段名映射
+          topSellingCoffees.value = (response.data || []).map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            coffeeImage: item.coffee_image || item.coffeeImage,  // 处理数据库字段名映射
+            description: item.description,
+            category: item.category,
+            stock: item.stock,
+            status: item.status,
+            recommend: item.recommend,
+            sales: item.lastWeekSales || item.sales || 0,  // 映射过去七天销量
+          }))
         } else {
           ElMessage.error(response.message)
         }

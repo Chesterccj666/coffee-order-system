@@ -23,3 +23,8 @@ export const getCoffeeByCategory = (category) => {
 export const getRecommendedCoffee = () => {
   return request.get('/api/coffee/recommended')
 }
+
+// 获取过去七天热销的咖啡
+export const getTopSellingLastWeek = (limit) => {
+  return request.get(`/api/coffee/home/top-selling-last-week/${limit}`)
+}

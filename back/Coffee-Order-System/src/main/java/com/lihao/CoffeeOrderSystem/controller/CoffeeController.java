@@ -350,6 +350,19 @@ public class CoffeeController {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }
     }
+    
+    /**
+     * 首页功能：获取过去七天销量最高的咖啡
+     */
+    @GetMapping("/home/top-selling-last-week/{limit}")
+    public Object getTopSellingLastWeek(@PathVariable int limit) {
+        try {
+            List<Map<String, Object>> coffeeList = coffeeService.getTopSellingLastWeek(limit);
+            return new ResponseResult<>(200, "获取成功", coffeeList);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
 
     /**
      * 管理员功能：获取按类别统计的销售数据
