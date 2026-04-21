@@ -88,11 +88,6 @@
           </el-card>
         </div>
       </el-main>
-
-      <!-- 底部 -->
-      <el-footer class="footer">
-        <p>&copy; 2026 咖啡点单系统. 版权所有.</p>
-      </el-footer>
     </el-container>
 
     <!-- 结算对话框 -->
@@ -318,7 +313,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px;
+  padding: 60px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -397,12 +392,5 @@ export default {
   font-size: 18px;
   font-weight: bold;
   color: #e74c3c;
-}
-
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  line-height: 60px;
 }
 </style>

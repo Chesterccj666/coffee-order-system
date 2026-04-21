@@ -107,11 +107,6 @@
            </el-card>
          </div>
       </el-main>
-
-      <!-- 底部 -->
-      <el-footer class="footer">
-        <p>&copy; 2026 咖啡点单系统. 版权所有.</p>
-      </el-footer>
     </el-container>
   </div>
 </template>
@@ -585,13 +580,6 @@ export default {
   background: linear-gradient(135deg, #337ecc 0%, #5ca0e6 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  line-height: 60px;
 }
 
 .password-change-container {

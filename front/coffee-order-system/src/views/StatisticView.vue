@@ -76,11 +76,6 @@
           <div ref="dailySalesChartRef" class="chart-container"></div>
         </el-card>
       </el-main>
-
-      <!-- 底部 -->
-      <el-footer class="footer">
-        <p>&copy; 2026 咖啡点单系统. 版权所有.</p>
-      </el-footer>
     </el-container>
   </div>
 </template>
@@ -489,12 +484,5 @@ export default {
   font-size: 16px;
 
   font-weight: bold;
-}
-
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  line-height: 60px;
 }
 </style>

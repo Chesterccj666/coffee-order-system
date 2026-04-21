@@ -95,11 +95,6 @@
           </div>
         </div>
       </el-main>
-
-      <!-- 底部 -->
-      <el-footer class="footer">
-        <p>&copy; 2026 咖啡点单系统. 店员版</p>
-      </el-footer>
     </el-container>
   </div>
 </template>
@@ -504,12 +499,5 @@ export default {
   margin: 0;
   font-size: 50px;
   font-weight: 500;
-}
-
-.footer {
-  background-color: #fff;
-  text-align: center;
-  padding: 20px;
-  color: #999;
 }
 </style>

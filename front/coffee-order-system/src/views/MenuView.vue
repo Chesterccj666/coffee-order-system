@@ -184,11 +184,6 @@
           </el-main>
         </el-container>
       </el-main>
-
-      <!-- 底部 -->
-      <el-footer class="footer">
-        <p>&copy; 2026 咖啡点单系统. 版权所有.</p>
-      </el-footer>
     </el-container>
 
     <!-- 固定在底部的小购物车组件 -->
@@ -801,14 +796,6 @@ export default {
   white-space: nowrap;
 }
 
-.footer {
-  background-color: #f5f5f5;
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  margin-top: auto;
-}
-
 /* 小购物车样式 */
 .mini-cart {
   position: fixed;
@@ -1034,12 +1021,5 @@ export default {
 
 .option-group {
   margin-bottom: 8px;
-}
-
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  line-height: 60px;
 }
 </style>
