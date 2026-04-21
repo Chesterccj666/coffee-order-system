@@ -30,21 +30,21 @@
           <el-card class="stat-card">
             <div class="stat-content">
               <div class="stat-number">¥{{ totalSales.toFixed(2) }}</div>
-              <div class="stat-label">总销售额</div>
+              <div class="stat-label">历史总销售额</div>
             </div>
           </el-card>
           
           <el-card class="stat-card">
             <div class="stat-content">
-              <div class="stat-number">{{ totalCoffees }}</div>
-              <div class="stat-label">咖啡总数</div>
+              <div class="stat-number">{{ totalCoffeesSold }}</div>
+              <div class="stat-label">历史总销量</div>
             </div>
           </el-card>
           
           <el-card class="stat-card">
             <div class="stat-content">
-              <div class="stat-number">{{ totalCategories }}</div>
-              <div class="stat-label">咖啡类别数</div>
+              <div class="stat-number">¥{{ pastSevenDaysSales.toFixed(2) }}</div>
+              <div class="stat-label">过去七天销售额</div>
             </div>
           </el-card>
         </div>
@@ -84,14 +84,14 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { getTotalSalesAmount, getCategorySalesStats, getTopSellingCoffee, getAllCoffeeCategories, getDailySalesForLastWeek } from '@/api/admin'
+import { getTotalSalesAmount, getTotalCoffeesSold, getCategorySalesStats, getTopSellingCoffee, getDailySalesForLastWeek } from '@/api/admin'
 
 export default {
   name: 'StatisticsView',
   setup() {
-    const totalSales = ref(0)
-    const totalCoffees = ref(0)
-    const totalCategories = ref(0)
+      const totalSales = ref(0)  // 历史总销售额
+      const totalCoffeesSold = ref(0)  // 历史总销量
+      const pastSevenDaysSales = ref(0)  // 过去七天销售额
     
     const categorySalesChartRef = ref(null)
     const coffeeSalesChartRef = ref(null)
@@ -128,12 +128,29 @@ export default {
 
     const loadData = async () => {
       try {
-        // 加载总销售额
-        const totalSalesResponse = await getTotalSalesAmount()
-        if (totalSalesResponse.code === 200) {
-          totalSales.value = totalSalesResponse.data || 0
+        // 获取历史总销售额
+        const totalSalesRes = await getTotalSalesAmount()
+        if (totalSalesRes.code === 200) {
+          totalSales.value = totalSalesRes.data || 0
         } else {
-          ElMessage.error('加载总销售额失败')
+          ElMessage.error('获取历史总销售额失败: ' + totalSalesRes.message)
+        }
+
+        // 获取历史总销量
+        const totalCoffeesSoldRes = await getTotalCoffeesSold()
+        if (totalCoffeesSoldRes.code === 200) {
+          totalCoffeesSold.value = totalCoffeesSoldRes.data || 0
+        } else {
+          ElMessage.error('获取历史总销量失败: ' + totalCoffeesSoldRes.message)
+        }
+
+        // 获取过去七天销售额
+        const dailySalesRes = await getDailySalesForLastWeek()
+        if (dailySalesRes.code === 200) {
+          const dailySalesData = dailySalesRes.data || []
+          pastSevenDaysSales.value = dailySalesData.reduce((sum, day) => sum + (day.sales || 0), 0)
+        } else {
+          ElMessage.error('获取过去七天销售额失败: ' + dailySalesRes.message)
         }
 
         // 加载各类别销售统计数据
@@ -149,7 +166,7 @@ export default {
             return item.totalSales || 0
           })
           
-          totalCategories.value = categoryNames.length
+
           
           // 渲染类别销售额图表
           await nextTick()
@@ -162,7 +179,6 @@ export default {
         const topSellingResponse = await getTopSellingCoffee(10)
         if (topSellingResponse.code === 200) {
           const topSellingData = topSellingResponse.data || []
-          totalCoffees.value = topSellingData.length
           
           // 准备销量图表数据
           const coffeeNames = topSellingData.map(coffee => coffee.name)
@@ -369,8 +385,8 @@ export default {
 
     return {
       totalSales,
-      totalCoffees,
-      totalCategories,
+      totalCoffeesSold,
+      pastSevenDaysSales,
       categorySalesChartRef,
       coffeeSalesChartRef,
       dailySalesChartRef,

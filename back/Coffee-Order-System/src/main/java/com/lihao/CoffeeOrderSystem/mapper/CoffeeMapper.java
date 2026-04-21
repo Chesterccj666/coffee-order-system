@@ -97,13 +97,13 @@ public interface CoffeeMapper {
     /**
      * 【管理员功能】查询销量最高的咖啡
      */
-    @Select("SELECT * FROM coffee ORDER BY sales DESC LIMIT #{limit}")
+    @Select("SELECT c.*, SUM(oi.quantity) as totalQuantity FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 GROUP BY c.id ORDER BY totalQuantity DESC LIMIT #{limit}")
     List<Coffee> selectTopSelling(@Param("limit") int limit);
     
     /**
      * 【管理员功能】按类别统计销售数据
      */
-    @Select("SELECT c.category, SUM(oi.total_price) as totalSales FROM order_item oi JOIN coffee c ON oi.coffee_id = c.id GROUP BY c.category")
+    @Select("SELECT c.category, SUM(oi.total_price) as totalSales FROM order_item oi JOIN `order` o ON oi.order_id = o.id JOIN coffee c ON oi.coffee_id = c.id WHERE o.status = 3 GROUP BY c.category")
     List<Map<String, Object>> selectCategorySalesStats();
     
     /**
@@ -113,10 +113,16 @@ public interface CoffeeMapper {
     List<String> selectAllCategories();
     
     /**
-     * 【管理员功能】查询总销售额
+     * 【管理员功能】查询历史总销售额
      */
-    @Select("SELECT SUM(total_amount) FROM `order` WHERE status = 3")
+    @Select("SELECT COALESCE(SUM(oi.total_price), 0) FROM order_item oi JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3")
     Double selectTotalSalesAmount();
+    
+    /**
+     * 【管理员功能】查询历史总销量
+     */
+    @Select("SELECT COALESCE(SUM(oi.quantity), 0) FROM order_item oi JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3")
+    Integer selectTotalCoffeesSold();
     
     /**
      * 【管理员功能】根据ID更新咖啡图片路径

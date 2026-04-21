@@ -67,6 +67,6 @@ public interface OrderMapper {
     /**
      * 【管理员功能】获取过去七天的每日销售额
      */
-    @Select("SELECT DATE(order_time) as date, IFNULL(SUM(total_amount), 0) as sales FROM `order` WHERE status = 3 AND order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(order_time) ORDER BY DATE(order_time)")
+    @Select("SELECT DATE(order_time) as date, COALESCE(SUM(total_amount), 0) as sales FROM `order` WHERE status = 3 AND order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(order_time) ORDER BY DATE(order_time)")
     List<Map<String, Object>> selectDailySalesForLastWeek();
 }

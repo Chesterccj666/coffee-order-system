@@ -115,6 +115,11 @@ public class CoffeeServiceImpl implements CoffeeService {
     }
     
     @Override
+    public Integer getTotalCoffeesSold() {
+        return coffeeMapper.selectTotalCoffeesSold();
+    }
+    
+    @Override
     public boolean updateCoffeeImage(Integer id, String coffeeImage) {
         try {
             coffeeMapper.updateImageById(id, coffeeImage);

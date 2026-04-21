@@ -75,6 +75,8 @@ public interface CoffeeService {
      */
     Double getTotalSalesAmount();
     
+    Integer getTotalCoffeesSold();
+    
     /**
      * 更新咖啡图片路径
      */

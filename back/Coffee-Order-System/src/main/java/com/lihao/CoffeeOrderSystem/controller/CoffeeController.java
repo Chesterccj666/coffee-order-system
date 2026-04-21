@@ -378,7 +378,7 @@ public class CoffeeController {
     }
 
     /**
-     * 管理员功能：获取总销售额
+     * 管理员功能：获取历史总销售额
      */
     @GetMapping("/admin/total-sales")
     public Object getTotalSalesAmount() {
@@ -388,6 +388,22 @@ public class CoffeeController {
                 totalSales = 0.0;
             }
             return new ResponseResult<>(200, "获取成功", totalSales);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
+    
+    /**
+     * 管理员功能：获取历史总销量
+     */
+    @GetMapping("/admin/total-coffees-sold")
+    public Object getTotalCoffeesSold() {
+        try {
+            Integer totalCoffeesSold = coffeeService.getTotalCoffeesSold();
+            if (totalCoffeesSold == null) {
+                totalCoffeesSold = 0;
+            }
+            return new ResponseResult<>(200, "获取成功", totalCoffeesSold);
         } catch (Exception e) {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }

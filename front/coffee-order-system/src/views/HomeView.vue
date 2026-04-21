@@ -44,8 +44,8 @@
             <h2>管理员面板</h2>
             <p>管理咖啡商品，查看销售数据，优化运营策略</p>
             <div class="admin-actions">
-              <el-button type="primary" @click="$router.push('/admin/coffee')">咖啡管理</el-button>
-              <el-button type="success" @click="$router.push('/admin/statistics')">数据统计</el-button>
+              <el-button type="primary" size="large" @click="$router.push('/admin/coffee')">咖啡管理</el-button>
+              <el-button type="success" size="large" @click="$router.push('/admin/statistics')">数据统计</el-button>
             </div>
           </div>
         </div>
@@ -382,6 +382,7 @@ export default {
   margin-top: 20px;
   display: flex;
   gap: 15px;
+  justify-content: center;
 }
 
 .top-selling-section {
