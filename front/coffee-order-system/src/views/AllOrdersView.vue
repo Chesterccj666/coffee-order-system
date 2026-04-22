@@ -522,6 +522,7 @@ export default {
 }
 
 /* ===== 头部导航 ===== */
+/* ===== 头部导航 ===== */
 .app-header {
   position: fixed;
   top: 0;
@@ -536,7 +537,7 @@ export default {
 }
 
 .header-inner {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -583,6 +584,7 @@ export default {
   text-transform: uppercase;
 }
 
+/* ===== 导航菜单 ===== */
 .nav-menu {
   display: flex;
   align-items: center;

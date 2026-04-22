@@ -15,12 +15,12 @@
             <span class="logo-icon">☕</span>
             <span class="logo-text">
               <span class="logo-main">咖啡工坊</span>
-              <span class="logo-sub">我的订单</span>
+              <span class="logo-sub">菜单</span>
             </span>
           </div>
           
           <nav class="nav-menu">
-            <router-link to="/menu" class="nav-link">
+            <router-link to="/menu" class="nav-link active">
               <span class="nav-text">菜单</span>
               <span class="nav-underline"></span>
             </router-link>
@@ -28,7 +28,7 @@
               <span class="nav-text">购物车</span>
               <span class="nav-underline"></span>
             </router-link>
-            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/orders" class="nav-link active">
+            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/orders" class="nav-link">
               <span class="nav-text">我的订单</span>
               <span class="nav-underline"></span>
             </router-link>
@@ -41,6 +41,7 @@
             </template>
             <template v-else>
               <router-link to="/profile" class="nav-link nav-link--user">
+                <span class="user-avatar">{{ userInfo.username?.charAt(0) }}</span>
                 <span class="nav-text">{{ userInfo.username }}</span>
                 <span class="nav-underline"></span>
               </router-link>
@@ -536,11 +537,10 @@ export default {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(212, 163, 115, 0.15);
-  transition: all 0.3s ease;
 }
 
 .header-inner {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;

@@ -9,22 +9,22 @@
 
     <div class="page-container">
       <!-- 头部导航 - 悬浮玻璃效果 -->
-      <header class="app-header" ref="headerRef">
+     <header class="app-header" ref="headerRef">
         <div class="header-inner">
           <div class="logo-area" @click="$router.push('/')">
             <span class="logo-icon">☕</span>
             <span class="logo-text">
               <span class="logo-main">咖啡工坊</span>
-              <span class="logo-sub">购物车</span>
+              <span class="logo-sub">菜单</span>
             </span>
           </div>
           
           <nav class="nav-menu">
-            <router-link to="/menu" class="nav-link">
+            <router-link to="/menu" class="nav-link active">
               <span class="nav-text">菜单</span>
               <span class="nav-underline"></span>
             </router-link>
-            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/cart" class="nav-link active">
+            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/cart" class="nav-link">
               <span class="nav-text">购物车</span>
               <span class="nav-underline"></span>
             </router-link>
@@ -41,6 +41,7 @@
             </template>
             <template v-else>
               <router-link to="/profile" class="nav-link nav-link--user">
+                <span class="user-avatar">{{ userInfo.username?.charAt(0) }}</span>
                 <span class="nav-text">{{ userInfo.username }}</span>
                 <span class="nav-underline"></span>
               </router-link>
@@ -566,11 +567,10 @@ export default {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(212, 163, 115, 0.15);
-  transition: all 0.3s ease;
 }
 
 .header-inner {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -661,17 +661,6 @@ export default {
   width: 100%;
 }
 
-.cart-badge {
-  background: var(--terracotta);
-  color: var(--crema);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 20px;
-  margin-left: 4px;
-  animation: badgePulse 2s infinite;
-}
-
 .nav-link--user {
   gap: 6px;
 }
@@ -688,6 +677,17 @@ export default {
   font-weight: 600;
   font-size: 14px;
   text-transform: uppercase;
+}
+
+.cart-badge {
+  background: var(--terracotta);
+  color: var(--crema);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+  margin-left: 4px;
+  animation: badgePulse 2s infinite;
 }
 
 /* ===== 主内容区域 ===== */

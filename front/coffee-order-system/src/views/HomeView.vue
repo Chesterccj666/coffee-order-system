@@ -623,6 +623,7 @@ export default {
 }
 
 /* ===== 头部导航 ===== */
+/* ===== 头部导航 ===== */
 .app-header {
   position: fixed;
   top: 0;
@@ -637,7 +638,7 @@ export default {
 }
 
 .header-inner {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -684,6 +685,7 @@ export default {
   text-transform: uppercase;
 }
 
+/* ===== 导航菜单 ===== */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -708,6 +710,10 @@ export default {
   color: var(--terracotta);
 }
 
+.nav-link.active {
+  color: var(--terracotta);
+}
+
 .nav-underline {
   position: absolute;
   bottom: 0;
@@ -718,7 +724,8 @@ export default {
   transition: width 0.3s ease;
 }
 
-.nav-link:hover .nav-underline {
+.nav-link:hover .nav-underline,
+.nav-link.active .nav-underline {
   width: 100%;
 }
 
