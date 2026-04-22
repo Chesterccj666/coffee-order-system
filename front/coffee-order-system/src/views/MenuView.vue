@@ -245,7 +245,38 @@ export default {
       loadMiniCart()
       initCustomCursor()
       initScrollObserver()
+      // 检查URL锚点并滚动到对应咖啡卡片
+      checkUrlAnchor()
+      
+      // 监听路由变化，处理锚点跳转
+      router.afterEach(() => {
+        checkUrlAnchor()
+      })
     })
+
+    // 检查URL锚点并滚动到对应咖啡卡片
+    const checkUrlAnchor = () => {
+      // 等待咖啡数据加载完成后再执行
+      setTimeout(() => {
+        nextTick(() => {
+          const hash = window.location.hash
+          if (hash && hash.startsWith('#coffee-')) {
+            const coffeeId = hash.substring(8) // 移除 #coffee- 前缀
+            const coffeeElement = document.getElementById(`coffee-${coffeeId}`)
+            if (coffeeElement) {
+              // 滚动到咖啡卡片
+              coffeeElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              
+              // 给咖啡卡片添加高亮效果
+              coffeeElement.classList.add('highlighted')
+              setTimeout(() => {
+                coffeeElement.classList.remove('highlighted')
+              }, 1000)
+            }
+          }
+        })
+      }, 500) // 等待500毫秒，确保咖啡数据已加载
+    }
 
     onUnmounted(() => {
       window.removeEventListener('mousemove', handleMouseMove)

@@ -1,5 +1,5 @@
 <template>
-  <div class="coffee-card" :class="{ 'out-of-stock': isOutOfStock }">
+  <div class="coffee-card" :class="{ 'out-of-stock': isOutOfStock }" :id="`coffee-${coffee.id}`">
     <div class="card-image-wrapper">
       <img :src="coffee.coffeeImage" :alt="coffee.name" class="card-image" />
       <div class="image-overlay"></div>
@@ -176,6 +176,28 @@ export default {
 </script>
 
 <style scoped>
+/* ===== 高亮效果 ===== */
+.coffee-card.highlighted {
+  animation: highlightPulse 1s ease-in-out;
+  box-shadow: 0 0 20px rgba(212, 163, 115, 0.5);
+  border: 2px solid var(--golden);
+}
+
+@keyframes highlightPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(212, 163, 115, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(212, 163, 115, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(212, 163, 115, 0.4);
+  }
+}
+
 .coffee-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(8px);
