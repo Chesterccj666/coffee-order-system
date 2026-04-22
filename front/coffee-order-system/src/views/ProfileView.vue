@@ -175,7 +175,7 @@
                           :class="{ active: form.gender === '男' }"
                           @click="form.gender = '男'"
                         >
-                          <span class="gender-icon">👨</span>
+                          <span class="gender-icon">♂️</span>
                           <span class="gender-text">男</span>
                         </div>
                         <div 
@@ -183,7 +183,7 @@
                           :class="{ active: form.gender === '女' }"
                           @click="form.gender = '女'"
                         >
-                          <span class="gender-icon">👩</span>
+                          <span class="gender-icon">♀️</span>
                           <span class="gender-text">女</span>
                         </div>
                       </div>

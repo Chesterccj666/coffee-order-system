@@ -42,10 +42,22 @@ public class CoffeeServiceImpl implements CoffeeService {
     @Override
     public boolean addCoffee(Coffee coffee) {
         try {
+            // 如果是设置为推荐状态（recommend='1'），则检查当前推荐数量
+            if ("1".equals(coffee.getRecommend())) {
+                int currentRecommendedCount = coffeeMapper.selectRecommendedCount();
+                // 如果当前推荐数量已经达到8个，则不允许再推荐
+                if (currentRecommendedCount >= 8) {
+                    throw new RuntimeException("推荐的咖啡数量已达上限（8个），无法再推荐更多咖啡");
+                }
+            }
             coffeeMapper.insert(coffee);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            // 如果是推荐数量超限的异常，重新抛出
+            if (e.getMessage() != null && e.getMessage().contains("推荐的咖啡数量已达上限")) {
+                throw e;
+            }
             return false;
         }
     }
