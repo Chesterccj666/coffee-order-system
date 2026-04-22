@@ -58,6 +58,10 @@
                 <span class="nav-text">数据统计</span>
                 <span class="nav-underline"></span>
               </router-link>
+              <router-link to="/admin/add-admin" class="nav-link">
+                <span class="nav-text">添加管理员</span>
+                <span class="nav-underline"></span>
+              </router-link>
             </template>
             
             <!-- 公有功能 -->

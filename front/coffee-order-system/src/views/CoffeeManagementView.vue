@@ -28,6 +28,10 @@
               <span class="nav-text">数据统计</span>
               <span class="nav-underline"></span>
             </router-link>
+            <router-link to="/admin/add-admin" class="nav-link">
+              <span class="nav-text">添加管理员</span>
+              <span class="nav-underline"></span>
+            </router-link>
             <router-link to="/profile" class="nav-link nav-link--user">
               <span class="user-avatar">{{ userInfo.username?.charAt(0) }}</span>
               <span class="nav-text">{{ userInfo.username }}</span>

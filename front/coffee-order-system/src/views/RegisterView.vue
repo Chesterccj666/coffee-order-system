@@ -53,7 +53,6 @@
           <el-radio-group v-model="registerForm.role">
             <el-radio :label="1">顾客</el-radio>
             <el-radio :label="2">店员</el-radio>
-            <el-radio :label="3">管理员</el-radio>
           </el-radio-group>
         </el-form-item>
         <div class="button-container">
