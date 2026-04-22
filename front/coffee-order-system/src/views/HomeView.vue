@@ -943,8 +943,8 @@ export default {
 
 .cup-handle-large {
   position: absolute;
-  right: -20px;
-  top: 40px;
+  right: -15px;
+  top: 110px;
   width: 40px;
   height: 60px;
   border: 6px solid var(--warm-brown);
