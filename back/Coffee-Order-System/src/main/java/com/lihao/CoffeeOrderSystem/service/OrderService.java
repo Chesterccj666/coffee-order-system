@@ -59,4 +59,9 @@ public interface OrderService {
      * 获取过去七天的每日销售额
      */
     List<Map<String, Object>> getDailySalesForLastWeek();
+    
+    /**
+     * 获取过去七天的每日销量
+     */
+    List<Map<String, Object>> getDailyQuantityForLastWeek();
 }

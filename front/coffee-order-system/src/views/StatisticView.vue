@@ -55,7 +55,7 @@
           <!-- 销售额统计图表 -->
           <el-card class="chart-card">
             <template #header>
-              <span class="chart-title">各种咖啡历史总销售额统计</span>
+              <span class="chart-title">各种类咖啡历史总销售额统计</span>
             </template>
             <div ref="categorySalesChartRef" class="chart-container"></div>
           </el-card>
@@ -63,19 +63,29 @@
           <!-- 销量统计图表 -->
           <el-card class="chart-card">
             <template #header>
-              <span class="chart-title">各咖啡历史总销量排行</span>
+              <span class="chart-title">各咖啡历史总销量排行（Top10）</span>
             </template>
             <div ref="coffeeSalesChartRef" class="chart-container"></div>
           </el-card>
         </div>
 
         <!-- 过去七天销售额统计 -->
-        <el-card class="daily-sales-card">
-          <template #header>
-            <span class="card-title">过去七天销售额变化趋势</span>
-          </template>
-          <div ref="dailySalesChartRef" class="chart-container"></div>
-        </el-card>
+        <div class="charts-section">
+          <el-card class="chart-card">
+            <template #header>
+              <span class="chart-title">过去七天销售额变化趋势</span>
+            </template>
+            <div ref="dailySalesChartRef" class="chart-container"></div>
+          </el-card>
+
+          <!-- 过去七天销量统计 -->
+          <el-card class="chart-card">
+            <template #header>
+              <span class="chart-title">过去七天销量变化趋势</span>
+            </template>
+            <div ref="dailyQuantityChartRef" class="chart-container"></div>
+          </el-card>
+        </div>
       </el-main>
     </el-container>
   </div>
@@ -85,7 +95,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { getTotalSalesAmount, getTotalCoffeesSold, getCategorySalesStats, getTopSellingCoffee, getDailySalesForLastWeek } from '@/api/admin'
+import { getTotalSalesAmount, getTotalCoffeesSold, getCategorySalesStats, getTopSellingCoffee, getDailySalesForLastWeek, getDailyQuantityForLastWeek } from '@/api/admin'
 
 export default {
   name: 'StatisticsView',
@@ -97,6 +107,7 @@ export default {
     const categorySalesChartRef = ref(null)
     const coffeeSalesChartRef = ref(null)
     const dailySalesChartRef = ref(null)
+    const dailyQuantityChartRef = ref(null)
     
     // 登录状态相关
     const isLoggedIn = ref(false)
@@ -179,7 +190,10 @@ export default {
         // 准备销量图表数据（使用类别销售数据替代）
         const topSellingResponse = await getTopSellingCoffee(10)
         if (topSellingResponse.code === 200) {
-          const topSellingData = topSellingResponse.data || []
+          let topSellingData = topSellingResponse.data || []
+          
+          // 按销量降序排序
+          topSellingData.sort((a, b) => (b.sales || 0) - (a.sales || 0))
           
           // 准备销量图表数据
           const coffeeNames = topSellingData.map(coffee => coffee.name)
@@ -238,6 +252,54 @@ export default {
           renderDailySalesChart(dates, sales)
         } else {
           ElMessage.error('加载每日销售额数据失败')
+        }
+        
+        // 加载过去七天销量数据
+        const dailyQuantityResponse = await getDailyQuantityForLastWeek()
+        if (dailyQuantityResponse.code === 200) {
+          const dailyQuantityData = dailyQuantityResponse.data || []
+          
+          // 准备图表数据
+          const quantityDates = dailyQuantityData.map(item => {
+            // 处理后端返回的数据结构，可能是Map或对象
+            // 检查所有可能的键名
+            let dateStr = '未知日期';
+            if (item.date) {
+              dateStr = item.date
+            } else if (item.DATE) {
+              dateStr = item.DATE
+            } else if (item['DATE(order_time)']) {
+              dateStr = item['DATE(order_time)']
+            } else if (item['date(order_time)']) {
+              dateStr = item['date(order_time)']
+            }
+            
+            // 格式化日期，只保留月和日
+            if (dateStr !== '未知日期') {
+              // 将日期字符串转换为Date对象再格式化
+              const dateObj = new Date(dateStr);
+              const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需加1
+              const day = String(dateObj.getDate()).padStart(2, '0');
+              return `${month}-${day}`;
+            }
+            return dateStr;
+          })
+          const quantity = dailyQuantityData.map(item => {
+            if (item.quantity !== undefined) {
+              return parseInt(item.quantity) || 0
+            } else if (item.QUANTITY !== undefined) {
+              return parseInt(item.QUANTITY) || 0
+            } else if (item['IFNULL(SUM(quantity), 0)'] !== undefined) {
+              return parseInt(item['IFNULL(SUM(quantity), 0)']) || 0
+            }
+            return 0
+          })
+          
+          // 渲染每日销量图表
+          await nextTick()
+          renderDailyQuantityChart(quantityDates, quantity)
+        } else {
+          ElMessage.error('加载每日销量数据失败')
         }
       } catch (error) {
         console.error('加载统计数据失败:', error)
@@ -383,6 +445,57 @@ export default {
         chart.resize()
       })
     }
+    
+    const renderDailyQuantityChart = (dates, quantity) => {
+      if (!dailyQuantityChartRef.value) return
+      
+      const chart = echarts.init(dailyQuantityChartRef.value)
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          }
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '8%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: dates
+        },
+        yAxis: {
+          type: 'value',
+          name: '销量 (杯)'
+        },
+        series: [{
+          name: '销量',
+          type: 'line',
+          data: quantity,
+          smooth: true,
+          itemStyle: {
+            color: '#73c0de'
+          },
+          lineStyle: {
+            color: '#73c0de'
+          },
+          areaStyle: {
+            opacity: 0.2,
+            color: '#73c0de'
+          }
+        }]
+      }
+      chart.setOption(option)
+      
+      // 响应窗口大小变化
+      window.addEventListener('resize', () => {
+        chart.resize()
+      })
+    }
 
     return {
       totalSales,
@@ -391,6 +504,7 @@ export default {
       categorySalesChartRef,
       coffeeSalesChartRef,
       dailySalesChartRef,
+      dailyQuantityChartRef,
       // 登录状态相关
       isLoggedIn,
       userInfo
@@ -493,13 +607,8 @@ export default {
   height: 320px;
 }
 
-.daily-sales-card {
-  margin-top: 20px;
-}
-
 .card-title {
   font-size: 16px;
-
   font-weight: bold;
 }
 </style>

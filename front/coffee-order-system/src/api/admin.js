@@ -71,3 +71,8 @@ export const getTotalCoffeesSold = () => {
 export const getDailySalesForLastWeek = () => {
   return request.get('/api/coffee/admin/daily-sales-last-week')
 }
+
+// 获取过去七天的每日销量
+export const getDailyQuantityForLastWeek = () => {
+  return request.get('/api/coffee/admin/daily-quantity-last-week')
+}

@@ -247,4 +247,9 @@ public class OrderServiceImpl implements OrderService {
     public List<Map<String, Object>> getDailySalesForLastWeek() {
         return orderMapper.selectDailySalesForLastWeek();
     }
+    
+    @Override
+    public List<Map<String, Object>> getDailyQuantityForLastWeek() {
+        return orderMapper.selectDailyQuantityForLastWeek();
+    }
 }

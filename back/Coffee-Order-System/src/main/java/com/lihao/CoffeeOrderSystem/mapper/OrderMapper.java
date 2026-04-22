@@ -69,4 +69,10 @@ public interface OrderMapper {
      */
     @Select("SELECT DATE(order_time) as date, COALESCE(SUM(total_amount), 0) as sales FROM `order` WHERE status = 3 AND order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(order_time) ORDER BY DATE(order_time)")
     List<Map<String, Object>> selectDailySalesForLastWeek();
+    
+    /**
+     * 【管理员功能】获取过去七天的每日销量
+     */
+    @Select("SELECT DATE(o.order_time) as date, COALESCE(SUM(oi.quantity), 0) as quantity FROM `order` o JOIN order_item oi ON o.id = oi.order_id WHERE o.status = 3 AND o.order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(o.order_time) ORDER BY DATE(o.order_time)")
+    List<Map<String, Object>> selectDailyQuantityForLastWeek();
 }

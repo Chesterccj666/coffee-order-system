@@ -95,9 +95,9 @@ public interface CoffeeMapper {
     int updateStatus(@Param("id") Integer id, @Param("status") String status);
     
     /**
-     * 【管理员功能】查询销量最高的咖啡
+     * 【管理员功能】查询销量最高的咖啡（基于coffee表的sales字段）
      */
-    @Select("SELECT c.*, SUM(oi.quantity) as totalQuantity FROM coffee c JOIN order_item oi ON c.id = oi.coffee_id JOIN `order` o ON oi.order_id = o.id WHERE o.status = 3 AND o.order_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY c.id ORDER BY totalQuantity DESC LIMIT #{limit}")
+    @Select("SELECT * FROM coffee ORDER BY sales DESC LIMIT #{limit}")
     List<Coffee> selectTopSelling(@Param("limit") int limit);
     
     /**

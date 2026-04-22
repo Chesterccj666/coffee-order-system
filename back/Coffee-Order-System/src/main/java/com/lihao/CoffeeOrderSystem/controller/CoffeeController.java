@@ -438,4 +438,17 @@ public class CoffeeController {
             return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
         }
     }
+    
+    /**
+     * 管理员功能：获取过去七天的每日销量
+     */
+    @GetMapping("/admin/daily-quantity-last-week")
+    public Object getDailyQuantityForLastWeek() {
+        try {
+            List<Map<String, Object>> dailyQuantity = orderService.getDailyQuantityForLastWeek();
+            return new ResponseResult<>(200, "获取成功", dailyQuantity);
+        } catch (Exception e) {
+            return new ResponseResult<>(500, "获取失败：" + e.getMessage(), null);
+        }
+    }
 }
