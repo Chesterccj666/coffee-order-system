@@ -48,6 +48,13 @@
               <div class="stat-label">过去七天总销售额</div>
             </div>
           </el-card>
+          
+          <el-card class="stat-card">
+            <div class="stat-content">
+              <div class="stat-number">{{ pastSevenDaysQuantity }}</div>
+              <div class="stat-label">过去七天总销量（杯）</div>
+            </div>
+          </el-card>
         </div>
 
         <!-- 图表区域 -->
@@ -103,6 +110,7 @@ export default {
       const totalSales = ref(0)  // 历史总销售额
       const totalCoffeesSold = ref(0)  // 历史总销量
       const pastSevenDaysSales = ref(0)  // 过去七天销售额
+      const pastSevenDaysQuantity = ref(0)  // 过去七天总销量
     
     const categorySalesChartRef = ref(null)
     const coffeeSalesChartRef = ref(null)
@@ -258,6 +266,18 @@ export default {
         const dailyQuantityResponse = await getDailyQuantityForLastWeek()
         if (dailyQuantityResponse.code === 200) {
           const dailyQuantityData = dailyQuantityResponse.data || []
+          
+          // 计算过去七天总销量
+          pastSevenDaysQuantity.value = dailyQuantityData.reduce((sum, day) => {
+            if (day.quantity !== undefined) {
+              return sum + (parseInt(day.quantity) || 0)
+            } else if (day.QUANTITY !== undefined) {
+              return sum + (parseInt(day.QUANTITY) || 0)
+            } else if (day['IFNULL(SUM(quantity), 0)'] !== undefined) {
+              return sum + (parseInt(day['IFNULL(SUM(quantity), 0)']) || 0)
+            }
+            return sum
+          }, 0)
           
           // 准备图表数据
           const quantityDates = dailyQuantityData.map(item => {
@@ -501,6 +521,7 @@ export default {
       totalSales,
       totalCoffeesSold,
       pastSevenDaysSales,
+      pastSevenDaysQuantity,
       categorySalesChartRef,
       coffeeSalesChartRef,
       dailySalesChartRef,
