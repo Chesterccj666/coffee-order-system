@@ -9,7 +9,7 @@
 
     <div class="page-container">
       <!-- 头部导航 - 悬浮玻璃效果 -->
-     <header class="app-header" ref="headerRef">
+      <header class="app-header" ref="headerRef">
         <div class="header-inner">
           <div class="logo-area" @click="$router.push('/')">
             <span class="logo-icon">☕</span>
@@ -20,11 +20,11 @@
           </div>
           
           <nav class="nav-menu">
-            <router-link to="/menu" class="nav-link active">
+            <router-link to="/menu" class="nav-link">
               <span class="nav-text">菜单</span>
               <span class="nav-underline"></span>
             </router-link>
-            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/cart" class="nav-link">
+            <router-link v-if="isLoggedIn && userInfo.role === 1" to="/cart" class="nav-link active">
               <span class="nav-text">购物车</span>
               <span class="nav-underline"></span>
             </router-link>
@@ -488,8 +488,8 @@ export default {
 </script>
 
 <style scoped>
-/* ===== CSS Variables - 复古意式咖啡馆色盘 ===== */
-:root {
+/* ===== 全局样式与背景 ===== */
+.cart-page {
   --espresso: #1E1B1A;
   --dark-roast: #3A241A;
   --warm-brown: #5C3A2A;
@@ -499,10 +499,7 @@ export default {
   --honey: #E8B86D;
   --terracotta: #C8795C;
   --sage: #7D9B7A;
-}
 
-/* ===== 全局样式与背景 ===== */
-.cart-page {
   min-height: 100vh;
   background-color: var(--crema);
   position: relative;
