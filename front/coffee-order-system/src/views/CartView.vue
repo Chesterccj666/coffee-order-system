@@ -811,8 +811,8 @@ export default {
 
 .cup-handle {
   position: absolute;
-  right: 10px;
-  top: 20px;
+  right: -6px;
+  top: 13px;
   width: 25px;
   height: 35px;
   border: 4px solid var(--warm-brown);
