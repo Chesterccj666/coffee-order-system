@@ -136,7 +136,7 @@
                       <button 
                         class="qty-btn qty-btn--plus"
                         @click="incrementQuantity(item)"
-                        :disabled="item.quantity >= 10"
+                        :disabled="isIncrementDisabled(item)"
                       >
                         <span>+</span>
                       </button>
@@ -262,6 +262,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getUserCart, updateCartItemQuantity, deleteCartItem } from '@/api/cart'
 import { createOrder } from '@/api/order'
+import { getAllCoffee } from '@/api/coffee'
 
 export default {
   name: 'CartView',
@@ -272,6 +273,7 @@ export default {
     const userInfo = ref({})
     const showCheckoutDialog = ref(false)
     const orderRemark = ref('')
+    const coffeeStock = ref({})
     
     // Refs for animations
     const headerRef = ref(null)
@@ -282,10 +284,26 @@ export default {
       checkLoginStatus()
       if (isLoggedIn.value) {
         loadCartItems()
+        loadCoffeeStock()
       }
       initCustomCursor()
       initScrollAnimation()
     })
+    
+    const loadCoffeeStock = async () => {
+      try {
+        const response = await getAllCoffee()
+        if (response.code === 200) {
+          const coffeeMap = {}
+          response.data.forEach(coffee => {
+            coffeeMap[coffee.id] = coffee.stock
+          })
+          coffeeStock.value = coffeeMap
+        }
+      } catch (error) {
+        console.error('加载咖啡库存失败:', error)
+      }
+    }
     
     onUnmounted(() => {
       window.removeEventListener('mousemove', handleMouseMove)
@@ -372,10 +390,16 @@ export default {
     }
 
     const incrementQuantity = (item) => {
-      if (item.quantity < 10) {
+      const stock = coffeeStock.value[item.coffeeId]
+      if (stock === undefined || item.quantity < stock) {
         item.quantity++
         updateQuantity(item.id, item.quantity)
       }
+    }
+    
+    const isIncrementDisabled = (item) => {
+      const stock = coffeeStock.value[item.coffeeId]
+      return stock !== undefined && item.quantity >= stock
     }
 
     const removeFromCart = async (id) => {
@@ -481,7 +505,8 @@ export default {
       getTempText,
       getTempIcon,
       checkout,
-      confirmOrder
+      confirmOrder,
+      isIncrementDisabled
     }
   }
 }

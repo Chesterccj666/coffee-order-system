@@ -57,6 +57,7 @@
                 <button 
                   class="qty-btn qty-increment"
                   @click="incrementQuantity(item)"
+                  :disabled="isIncrementDisabled(item)"
                 >
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -92,7 +93,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { getAllCoffee } from '@/api/coffee'
 
 export default {
   name: 'MiniCart',
@@ -113,6 +115,7 @@ export default {
   emits: ['remove', 'checkout', 'update-quantity'],
   setup(props, { emit }) {
     const visible = ref(false)
+    const coffeeStock = ref({})
     
     const getSugarText = (val) => {
       const map = { 1: '正常糖', 2: '少糖', 3: '不加糖' }
@@ -137,20 +140,52 @@ export default {
       visible.value = false
     }
 
-    const handleQuantityChange = (itemId, newQuantity) => {
+    const loadCoffeeStock = async () => {
+      try {
+        const response = await getAllCoffee()
+        if (response.code === 200) {
+          const coffeeMap = {}
+          response.data.forEach(coffee => {
+            coffeeMap[coffee.id] = coffee.stock
+          })
+          coffeeStock.value = coffeeMap
+        }
+      } catch (error) {
+        console.error('加载咖啡库存失败:', error)
+      }
+    }
+
+    const handleQuantityChange = (itemId, newQuantity, coffeeId) => {
       if (newQuantity < 1) return
+      
+      // 检查库存
+      const stock = coffeeStock.value[coffeeId]
+      if (stock !== undefined && newQuantity > stock) {
+        return
+      }
+      
       emit('update-quantity', { itemId, quantity: newQuantity })
     }
 
     const incrementQuantity = (item) => {
-      handleQuantityChange(item.id, item.quantity + 1)
+      const newQuantity = item.quantity + 1
+      handleQuantityChange(item.id, newQuantity, item.coffeeId)
     }
 
     const decrementQuantity = (item) => {
       if (item.quantity > 1) {
-        handleQuantityChange(item.id, item.quantity - 1)
+        handleQuantityChange(item.id, item.quantity - 1, item.coffeeId)
       }
     }
+
+    const isIncrementDisabled = (item) => {
+      const stock = coffeeStock.value[item.coffeeId]
+      return stock !== undefined && item.quantity >= stock
+    }
+
+    onMounted(() => {
+      loadCoffeeStock()
+    })
 
     return {
       visible,
@@ -160,7 +195,8 @@ export default {
       handleCheckout,
       closePopover,
       incrementQuantity,
-      decrementQuantity
+      decrementQuantity,
+      isIncrementDisabled
     }
   }
 }
