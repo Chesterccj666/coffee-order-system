@@ -15,7 +15,7 @@
             <span class="logo-icon">☕</span>
             <span class="logo-text">
               <span class="logo-main">咖啡工坊</span>
-              <span class="logo-sub">菜单</span>
+              <span class="logo-sub">购物车</span>
             </span>
           </div>
           
