@@ -272,6 +272,7 @@ export default {
   background-color: var(--crema);
   position: relative;
   overflow-x: hidden;
+  overflow-y: hidden;
   font-family: 'DM Sans', 'Quicksand', sans-serif;
   display: flex;
   align-items: center;

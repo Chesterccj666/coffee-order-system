@@ -1610,7 +1610,7 @@ export default {
 }
 .drawer-close:hover { background: rgba(212, 163, 115, 0.1); color: var(--terracotta); }
 .drawer-close svg { width: 20px; height: 20px; }
-.drawer-body { flex: 1; overflow-y: auto; padding: 28px 32px; }
+.drawer-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 28px 32px; }
 .drawer-footer {
   padding: 24px 32px;
   border-top: 1px solid rgba(212, 163, 115, 0.15);
@@ -1634,7 +1634,7 @@ export default {
 }
 .required { color: var(--terracotta); margin-left: 2px; }
 .form-input, .form-textarea {
-  width: 100%;
+  width: 90%;
   padding: 14px 16px;
   background: var(--cream);
   border: 1.5px solid rgba(212, 163, 115, 0.2);
